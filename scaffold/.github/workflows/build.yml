@@ -1,0 +1,45 @@
+name: build
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Framework-specific build job. Pick one or remove this file entirely if
+# the project doesn't have a build step (e.g., a Python service might
+# not need this).
+#
+# The example below is for a Next.js project producing a standalone build.
+# For other frameworks, replace `npm run build` with the right command
+# and adjust the artefact-presence assertion.
+
+jobs:
+  next-build:
+    name: next build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - run: npm ci
+
+      - name: build
+        run: npm run build
+        env:
+          # Build needs NEXT_PUBLIC_* (or framework-equivalent) inlined into
+          # the client bundle. CI uses placeholders; the real values are
+          # injected at deploy time.
+          # <TODO: list project's NEXT_PUBLIC_* placeholders here>
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      # Adjust assertion to your framework's expected output:
+      # - Next.js standalone:  test -f .next/standalone/server.js
+      # - Vite:                test -f dist/index.html
+      # - tsc only:            test -d dist/
+      - name: assert build output
+        run: test -f .next/standalone/server.js

@@ -1,0 +1,17 @@
+{
+  "name": "<TODO: project-name>",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo '<TODO: replace with framework dev command>'",
+    "build": "echo '<TODO: replace with framework build command>'",
+    "start": "echo '<TODO: replace with framework start command>'",
+    "lint": "echo '<TODO: configure linter — see atom LESSONS_LEARNED.md>'",
+    "typecheck": "tsc --noEmit",
+    "test": "echo '<TODO: replace with test runner — jest, vitest, etc.>'"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

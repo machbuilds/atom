@@ -1,0 +1,18 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  // standalone output is required for the Dockerfile's COPY step to work.
+  // Without this, `.next/standalone/` doesn't get produced and the Docker
+  // build fails at the runner stage's COPY.
+  output: "standalone",
+
+  // <TODO: add framework-specific config the project needs. Common ones:>
+  // experimental: {
+  //   serverComponentsExternalPackages: ["@vercel/og"],
+  // },
+  // images: {
+  //   remotePatterns: [{ protocol: "https", hostname: "..." }],
+  // },
+};
+
+module.exports = nextConfig;

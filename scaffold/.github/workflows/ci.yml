@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Framework-agnostic CI baseline. Pick the steps that apply to your stack
+# and remove the rest. The Node example below is from a TypeScript/Next.js
+# project — adapt for Python, Go, etc.
+#
+# Notes:
+# - Calibration / expensive batch tests SHOULD NOT run in CI. They burn
+#   real API quota. Run them manually per tuning iteration.
+# - Lint runs only if you've configured a linter (see atom's
+#   LESSONS_LEARNED.md on lint scripts).
+
+jobs:
+  typecheck-test:
+    name: typecheck + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - run: npm ci
+
+      - name: typecheck
+        run: npm run typecheck
+
+      # Lint step — uncomment when ESLint is configured for the project.
+      # - name: lint
+      #   run: npm run lint
+
+      - name: test
+        run: npm test
