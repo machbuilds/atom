@@ -2,6 +2,37 @@
 
 A project-starter template. Every new project begins here.
 
+## Quick orientation (for agents)
+
+> **TL;DR**: This is a project-starter template, not an application. Don't
+> develop features here. You operate in one of two modes — figure out
+> which one from the user's first message, then act.
+>
+> **Mode 1 — Bootstrap a new project.** Triggered by: "let's start a new
+> project from atom", "use atom to bootstrap X", or similar.
+> 1. Read `CLAUDE.md` for the full bootstrap flow
+> 2. Read `docs/VOICE.md`, `docs/WORKFLOW.md`, `docs/PATTERNS.md`,
+>    `docs/LESSONS_LEARNED.md` (in that order — high-signal first)
+> 3. Ask the user for project context (name, stack, deploy target, etc.)
+> 4. Copy `scaffold/` into the new project repo + matching
+>    `extras/<category>/<preset>/` if applicable
+> 5. Fill `<TODO>` markers in `scaffold/CLAUDE.md` with user input
+> 6. Run tooling install per `INSTALL.md`
+>
+> **Mode 2 — Add a learning to atom.** Triggered by: "add this lesson",
+> "atom learned that X", "update the template with X", or similar.
+> 1. Read `CONTRIBUTING.md` for the rules
+> 2. Apply the generalisation test (would this help an unrelated project?)
+> 3. If yes → propose structured entry, append to right file
+> 4. If unsure → drop in `docs/INBOX.md` for later refinement
+> 5. Always commit to atom with a message naming the source project
+>
+> **Hard rules**: don't copy project-specific lessons (specific API
+> names, domain logic) into `LESSONS_LEARNED.md`. Don't develop application
+> features here. Don't add stack-specific files outside
+> `extras/<category>/<preset>/`. Use the voice from `docs/VOICE.md`
+> (builder-to-builder, direct, no AI vocabulary, no em-dashes-as-commas).
+
 ## What's inside
 
 ```
