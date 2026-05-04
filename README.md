@@ -9,7 +9,7 @@
   ╚═╝  ╚═╝   ╚═╝    ╚═════╝  ╚═╝     ╚═╝
 </pre>
 
-### the seed every project starts from
+### Every project starts here. Every lesson travels with you.
 
 A project-starter template with cross-project memory, multi-tool AI support, and an opinionated dev workflow baked in.
 
@@ -26,7 +26,7 @@ A project-starter template with cross-project memory, multi-tool AI support, and
 
 ## Contents
 
-[**Requirements**](#requirements) · [**Quick start**](#quick-start) · [**Features**](#what-atom-gives-you) · [**Why nucleus**](#the-nucleus-story) · [**Comparison**](#how-it-compares) · [**Compatibility**](#tool-compatibility) · [**Modes**](#modes) · [**Docs**](#documentation) · [**Roadmap**](#roadmap)
+[**Requirements**](#requirements) · [**Quick start**](#quick-start) · [**Modes**](#modes) · [**Features**](#what-atom-gives-you) · [**What is nucleus**](#what-is-nucleus) · [**Comparison**](#how-it-compares) · [**Compatibility**](#tool-compatibility) · [**Docs**](#documentation) · [**Roadmap**](#roadmap)
 
 ---
 
@@ -78,6 +78,21 @@ After that, `atom-setup`, `nucleus`, and `model-race` are available in any proje
 
 ---
 
+## Modes
+
+Pick how much ceremony you want at clone time:
+
+| Mode | Time | Best for |
+|---|---|---|
+| `atom-setup --bare` | <5 sec | Power users. Sane defaults, no questions. |
+| `atom-setup --minimal` | ~30 sec | Most people. 5 essential questions, defaults for the rest. |
+| `atom-setup` | ~2 min | New users. All 10 sections with smart defaults you can press Enter through. |
+| `atom-setup --full` | ~5 min | Explicit control over every option. |
+
+Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without writing), and `--target <dir>` (operate on a different directory).
+
+---
+
 ## What atom gives you
 
 | Feature | What it does |
@@ -93,15 +108,19 @@ After that, `atom-setup`, `nucleus`, and `model-race` are available in any proje
 
 ---
 
-## The nucleus story
+## What is nucleus?
 
-Every atom has a nucleus at its center holding its identity. **nucleus** does the same for your projects: the core knowledge that makes each project what it is.
+**nucleus is atom's cross-project learning store.** It's a CLI (`nucleus add`, `nucleus search`, `nucleus promote`, `nucleus sync`) backed by a JSONL file at `~/.nucleus/projects/<slug>/learnings.jsonl` on your machine. You capture durable lessons mid-session — pitfalls, patterns, architecture decisions with rationale — and they surface in any future session, in any project, with `nucleus search`.
+
+Think of it as **the brain of your project work that travels across every clone.** Every atom has a nucleus at its center holding its identity; `nucleus` does the same for your projects: the core knowledge that makes each project what it is.
+
+### Why it exists
 
 Code can be rewritten. The lessons you learned writing it are harder to recover. They sit in your head, get half-remembered, and quietly disappear when you start the next project. Most coding sessions teach you something — a pitfall, a pattern, an architecture decision with rationale. Without a capture system, that learning evaporates the moment the session ends.
 
 `nucleus` catches those lessons mid-session and lets future sessions, in any project, benefit from them. Together with atom's structure, you get more than a starter template: code you can rewrite, plus knowledge you can't.
 
-The flow:
+### The flow
 
 ```
        session
@@ -116,7 +135,17 @@ The flow:
    atom/docs/LESSONS_LEARNED.md  (essay form)
 ```
 
-The first arrow is automated. The second is human-in-the-loop. The third is rare and intentional.
+The first arrow is automated when Claude is your AI (claude-managed capture mode is the default). The second is human-in-the-loop — `nucleus promote` opens `$EDITOR` so you can refine the draft before it lands. The third is rare and intentional.
+
+### Capture modes
+
+| Mode | What happens |
+|---|---|
+| **`claude-managed`** (default) | Claude calls `nucleus add` at natural session boundaries (end of feature, after a commit, on `/clear`). Lowest friction. |
+| **`auto-timer`** | A background process drains a session log every N minutes (5/15/30/60). For users who don't want to think about it. |
+| **`manual`** | Claude surfaces "worth capturing?" suggestions; you run `nucleus add` yourself. For users who want full control. |
+
+Picked at `atom-setup` time, configurable later via `~/.nucleus/config.json`.
 
 ---
 
@@ -151,21 +180,6 @@ What other tools miss today:
 - **Slash commands.** `/gsd-new-project`, `/nucleus-promote`, etc. are Claude-only conventions today.
 
 **Roadmap.** As Codex CLI, Gemini CLI, and others grow richer integration surfaces (skill systems, slash command equivalents), atom will add tool-specific wrappers that delegate to `AGENTS.md` for content. The plan is to never duplicate — one source of truth, multiple read paths.
-
----
-
-## Modes
-
-Pick how much ceremony you want at clone time:
-
-| Mode | Time | Best for |
-|---|---|---|
-| `atom-setup --bare` | <5 sec | Power users. Sane defaults, no questions. |
-| `atom-setup --minimal` | ~30 sec | Most people. 5 essential questions, defaults for the rest. |
-| `atom-setup` | ~2 min | New users. All 10 sections with smart defaults you can press Enter through. |
-| `atom-setup --full` | ~5 min | Explicit control over every option. |
-
-Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without writing), and `--target <dir>` (operate on a different directory).
 
 ---
 
