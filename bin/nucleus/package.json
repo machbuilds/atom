@@ -1,0 +1,23 @@
+{
+  "name": "@atom/nucleus",
+  "version": "0.1.0",
+  "description": "Cross-project learning store. Captures session learnings into ~/.nucleus, syncs across machines via GitHub.",
+  "type": "module",
+  "bin": {
+    "nucleus": "bin/nucleus.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node bin/nucleus.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.3.0",
+    "commander": "^12.1.0",
+    "picocolors": "^1.1.1",
+    "proper-lockfile": "^4.1.2",
+    "ulid": "^2.4.0"
+  }
+}

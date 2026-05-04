@@ -1,6 +1,7 @@
 # nucleus — build plan
 
-> Status: locked. Ready to build.
+> Status: built (v0.1). Implementation: `bin/nucleus/`.
+> Skill: `scaffold/.claude/skills/nucleus/SKILL.md`.
 > Updated: 2026-05-04
 
 ## What it is

@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Local nucleus state (per-machine)
+.brain-config
+.nucleus-config
+
+# atom-setup wizard state (per-clone, not shared)
+.atom-setup-state.json
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build artifacts
+dist/
+build/
+.next/
+.turbo/
