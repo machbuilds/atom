@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "models": [
+    { "name": "claude", "cli": "claude", "args": [] },
+    { "name": "gpt5", "cli": "codex", "args": [] },
+    { "name": "gemini", "cli": "gemini", "args": [] }
+  ],
+  "metrics": {
+    "tests": {
+      "command": "npm test",
+      "weight": 3,
+      "mode": "pass-fail"
+    },
+    "lint": {
+      "command": "npm run lint",
+      "weight": 1,
+      "mode": "pass-fail"
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "weight": 2,
+      "mode": "pass-fail"
+    },
+    "size": {
+      "command": "git diff --shortstat main..HEAD",
+      "weight": 1,
+      "mode": "numeric-min"
+    }
+  },
+  "judge": {
+    "enabled": false,
+    "cli": "claude",
+    "criteria": [
+      "correctness against spec",
+      "idiomatic code for this codebase",
+      "test coverage",
+      "minimal diff"
+    ]
+  },
+  "worktree": {
+    "base": "../.race",
+    "branchPrefix": "feature/race"
+  }
+}

@@ -1,7 +1,16 @@
 # model-race — build plan
 
-> Status: locked. Ready to build.
-> Updated: 2026-05-04
+> Status: built (v0.1).
+> Implementation: `bin/model-race/`.
+> Skill: `scaffold/.claude/skills/model-race/SKILL.md`.
+> Source-of-truth instructions: `scaffold/AGENTS.md` "Tooling > model-race".
+> Updated: 2026-05-05
+>
+> **Deviation from plan**: `--auto` flag is documented in v0.1 but
+> prints a "not implemented" message and otherwise proceeds with the
+> default scaffold flow. Cross-AI parallel session orchestration
+> (Claude + Codex + Gemini in parallel from one process) has more
+> design surface than fits cleanly in v0.1; deferred to v0.2.
 
 ## What it is
 

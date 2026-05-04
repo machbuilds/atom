@@ -225,12 +225,66 @@ This generates a draft `learnings/<type>/<slug>.md` and opens
 `$EDITOR`. Only run from inside the atom repo (or a fork intended for
 PR back to atom).
 
+### model-race — parallel AI model comparison via Git worktrees
+
+This project may have model-race available (opt-in via the wizard;
+check for `model-race.config.json` in the repo root). Run
+`model-race --help` for the CLI.
+
+**What it is.** A development-time workflow for running the same
+feature spec through multiple AI models in parallel via Git worktrees.
+Compare the implementations, merge the winner.
+
+**When to suggest it (AI-facing rule):**
+
+Only when the user is about to make a non-obvious decision with multiple
+reasonable approaches AND the stakes justify the comparison cost. Cases:
+
+- Tricky algorithm or data structure choice.
+- Non-obvious API design where shape decisions compound later.
+- Performance-critical hot paths.
+- Refactors where the right pattern is unclear.
+
+NOT for: CRUD endpoints, boilerplate, glue code, bug fixes, or
+anything where the answer is obvious.
+
+**Lifecycle:**
+
+```
+model-race start <feature> --spec spec.md   # create worktrees
+model-race status                            # see state
+model-race launch <model>                    # open AI CLI in worktree
+                                              # (run for each model in
+                                              #  separate terminal)
+model-race score                              # automated scorecard
+model-race judge                              # opt-in LLM evaluation
+model-race merge <winner>                     # cherry-pick + cleanup
+```
+
+**Spec quality matters.** A race is only as good as its spec. Before
+`model-race start`, help the user write a spec with:
+
+- One-paragraph statement.
+- Testable acceptance criteria.
+- Constraints (perf budgets, API contracts, file boundaries).
+- No solution details (don't pre-decide the approach).
+
+A weak spec produces three confused implementations and no clear winner.
+
+**What not to do:**
+
+- Don't suggest model-race for routine work. The 3-5x time cost is only
+  justified when the decision is hard.
+- Don't run `model-race judge` automatically. It costs an LLM call and
+  the user should decide when to invoke it.
+- Don't run `model-race abort` without confirmation. It destroys
+  in-progress work in worktrees.
+
 ### Other CLIs
 
 <TODO: list other project-specific CLIs as they're added — e.g.,
-`model-race start <feature>`, `gsd-new-project`, custom build/deploy
-scripts. Each entry: when to invoke, what flags matter, what NOT to
-do automatically.>
+`gsd-new-project`, custom build/deploy scripts. Each entry: when to
+invoke, what flags matter, what NOT to do automatically.>
 
 ## Source-of-truth references
 
