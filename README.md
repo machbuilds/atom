@@ -1,40 +1,140 @@
-# atom
+<p align="center">
+<pre>
+   █████╗ ████████╗ ██████╗  ███╗   ███╗
+  ██╔══██╗╚══██╔══╝██╔═══██╗ ████╗ ████║
+  ███████║   ██║   ██║   ██║ ██╔████╔██║
+  ██╔══██║   ██║   ██║   ██║ ██║╚██╔╝██║
+  ██║  ██║   ██║   ╚██████╔╝ ██║ ╚═╝ ██║
+  ╚═╝  ╚═╝   ╚═╝    ╚═════╝  ╚═╝     ╚═╝
+</pre>
+</p>
 
-A project-starter template. Every new project begins here.
+<p align="center">
+  <strong>atom</strong> — the seed every project starts from.<br>
+  A project-starter template with cross-project memory, multi-tool AI support, and an opinionated dev workflow baked in.
+</p>
 
-## Quick orientation (for agents)
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
+  <img alt="Node 18+" src="https://img.shields.io/badge/node-%E2%89%A518-green">
+  <img alt="Built with clack" src="https://img.shields.io/badge/wizard-%40clack%2Fprompts-purple">
+  <a href="docs/planning/"><img alt="Build status: v0.1" src="https://img.shields.io/badge/build-v0.1%20feature%20complete-success"></a>
+</p>
 
-> **TL;DR**: This is a project-starter template, not an application. Don't
-> develop features here. You operate in one of two modes — figure out
-> which one from the user's first message, then act.
->
-> **Mode 1 — Bootstrap a new project.** Triggered by: "let's start a new
-> project from atom", "use atom to bootstrap X", or similar.
-> 1. Read `AGENTS.md` for the full bootstrap flow (`CLAUDE.md`, `GEMINI.md`,
->    `.cursorrules`, `.github/copilot-instructions.md` are forwarders)
-> 2. Read `docs/VOICE.md`, `docs/WORKFLOW.md`, `docs/PATTERNS.md`,
->    `docs/LESSONS_LEARNED.md` (in that order — high-signal first)
-> 3. Ask the user for project context (name, stack, deploy target, etc.)
-> 4. Copy `scaffold/` into the new project repo + matching
->    `extras/<category>/<preset>/` if applicable
-> 5. Fill `<TODO>` markers in `scaffold/AGENTS.md` with user input
-> 6. Run tooling install per `INSTALL.md`
->
-> **Mode 2 — Add a learning to atom.** Triggered by: "add this lesson",
-> "atom learned that X", "update the template with X", or similar.
-> 1. Read `CONTRIBUTING.md` for the rules
-> 2. Apply the generalisation test (would this help an unrelated project?)
-> 3. If yes → propose structured entry, append to right file
-> 4. If unsure → drop in `docs/INBOX.md` for later refinement
-> 5. Always commit to atom with a message naming the source project
->
-> **Hard rules**: don't copy project-specific lessons (specific API
-> names, domain logic) into `LESSONS_LEARNED.md`. Don't develop application
-> features here. Don't add stack-specific files outside
-> `extras/<category>/<preset>/`. Use the voice from `docs/VOICE.md`
-> (builder-to-builder, direct, no AI vocabulary, no em-dashes-as-commas).
+---
 
-## What's inside
+## Quick start
+
+```bash
+git clone https://github.com/mach273/atom.git my-project
+cd my-project
+atom-setup
+```
+
+Done. The cloned directory becomes your new project — atom-maintenance content removed, your stack preset and Docker tier copied in, fresh git history with one initial commit.
+
+Don't have `atom-setup` yet? Install once per machine:
+
+```bash
+cd bin/atom-setup && npm install -g .
+cd ../nucleus    && npm install -g .   # cross-project learning store
+cd ../model-race && npm install -g .   # parallel AI model workflow
+```
+
+---
+
+## What atom gives you
+
+| Feature | What it does |
+|---|---|
+| **`atom-setup`** | Interactive wizard (Node + clack). 4 modes: `--bare` / `--minimal` / default / `--full`. 10 sections cover project basics, stack, license, Docker tier, CI, git. Pre-flight detection, smart defaults, resumable state. |
+| **`nucleus`** | Cross-project learning store at `~/.nucleus`. Captures durable lessons mid-session; surfaces them in any future project. JSONL storage, optional GitHub sync, keyword + structured filter search. |
+| **`learnings/`** | Graduation layer for `nucleus` entries that prove generalizable. Files inherit into every bootstrapped project, filtered by stack tags. |
+| **`model-race`** | Parallel AI model comparison via Git worktrees. Race the same spec through claude/codex/gemini, score with weighted metrics, optional LLM judge, merge the winner. |
+| **Docker, optional** | Four tiers: None / Dockerfile / + compose / + devcontainer. Smart-defaulted from your stack. Production-grade out of the box (multi-stage, non-root, healthcheck, multi-arch CI). |
+| **Multi-AI tool support** | `AGENTS.md` is the canonical spec; `CLAUDE.md` / `GEMINI.md` / `.cursorrules` / `.github/copilot-instructions.md` are forwarders. Claude, Codex CLI, Gemini CLI, Cursor, and Copilot all read the same instructions. |
+| **Stack presets** | `extras/` ships opinionated setups per framework (Next.js + Railway today; more coming). Wizard copies the matching one. |
+| **Workflow integrations** | Optional Spec Kit + Task Master, GSD skills. Each opt-in via the wizard. |
+
+---
+
+## The nucleus story
+
+Every atom has a nucleus at its center holding its identity. **nucleus** does the same for your projects: the core knowledge that makes each project what it is.
+
+Code can be rewritten. The lessons you learned writing it are harder to recover. They sit in your head, get half-remembered, and quietly disappear when you start the next project. Most coding sessions teach you something — a pitfall, a pattern, an architecture decision with rationale. Without a capture system, that learning evaporates the moment the session ends.
+
+`nucleus` catches those lessons mid-session and lets future sessions, in any project, benefit from them. Together with atom's structure, you get more than a starter template: code you can rewrite, plus knowledge you can't.
+
+The flow:
+
+```
+       session
+          │
+          ▼  nucleus add  (raw, project-tagged)
+   ~/.nucleus/projects/<slug>/learnings.jsonl
+          │
+          ▼  nucleus promote <id>  (passes generalization test)
+   atom/learnings/<type>/<slug>.md  (curated, ships to new projects)
+          │
+          ▼  refine into prose
+   atom/docs/LESSONS_LEARNED.md  (essay form)
+```
+
+The first arrow is automated. The second is human-in-the-loop. The third is rare and intentional.
+
+---
+
+## How it compares
+
+| | atom | create-next-app | cookiecutter | degit |
+|---|---|---|---|---|
+| Stack-agnostic | yes | no (Next.js only) | yes | yes |
+| Interactive wizard | yes (4 modes) | yes | yes | no |
+| Stack presets | yes | partial | yes | no |
+| AI-tool integration | yes (multi-tool via AGENTS.md) | no | no | no |
+| Cross-project learning store | yes (nucleus) | no | no | no |
+| Parallel-model workflow | yes (model-race) | no | no | no |
+| Constitution / principles | yes | no | no | no |
+| Production Docker defaults | yes (4 tiers, opt-in) | partial | no | no |
+| Multi-arch CI workflow | yes (amd64 + arm64) | no | no | no |
+
+`degit` is the closest analog for "just give me the files." atom does more: it accumulates real practice (presets, learnings, AI-tool wiring) and it grows with your work via `nucleus`.
+
+---
+
+## Tool compatibility
+
+atom is **built primarily for Claude Code**. The richest experience — slash commands, the nucleus skill, deep tooling integration — assumes you're working in Claude Code. If you use Claude, everything just works.
+
+**Other AI tools work, with caveats.** Codex CLI (GPT), Gemini CLI, Cursor, and GitHub Copilot all read `AGENTS.md` (or a forwarder pointing to it). The full project instructions, including how to use nucleus and model-race, live in `AGENTS.md`. Every AI tool that lands in this project knows nucleus exists, when to search it, and when to capture.
+
+What other tools miss today:
+
+- **Skill auto-invocation.** Claude has a Skill tool that activates the nucleus skill at session boundaries. Other tools have to be prompted to remember nucleus, or you call `nucleus add` manually.
+- **Slash commands.** `/gsd-new-project`, `/nucleus-promote`, etc. are Claude-only conventions today.
+
+**Roadmap.** As Codex CLI, Gemini CLI, and others grow richer integration surfaces (skill systems, slash command equivalents), atom will add tool-specific wrappers that delegate to `AGENTS.md` for content. The plan is to never duplicate — one source of truth, multiple read paths.
+
+---
+
+## Modes
+
+Pick how much ceremony you want at clone time:
+
+| Mode | Time | Best for |
+|---|---|---|
+| `atom-setup --bare` | <5 sec | Power users. Sane defaults, no questions. |
+| `atom-setup --minimal` | ~30 sec | Most people. 5 essential questions, defaults for the rest. |
+| `atom-setup` | ~2 min | New users. All 10 sections with smart defaults you can press Enter through. |
+| `atom-setup --full` | ~5 min | Explicit control over every option. |
+
+Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without writing), and `--target <dir>` (operate on a different directory).
+
+---
+
+<details>
+<summary><strong>What's inside (full file tree)</strong></summary>
 
 ```
 atom/
@@ -55,7 +155,7 @@ atom/
 │   ├── planning/      Per-feature build plans
 │   └── INBOX.md       Raw capture before generalising
 │
-├── scaffold/          Copy these into every new project's repo
+├── scaffold/          Promoted to project root by atom-setup
 │   ├── AGENTS.md      Canonical instructions skeleton — fill <TODO> markers
 │   ├── CLAUDE.md      Forwarder → AGENTS.md
 │   ├── GEMINI.md      Forwarder → AGENTS.md
@@ -67,7 +167,10 @@ atom/
 │
 ├── learnings/         Generalised, structured learnings (graduation layer)
 │
-├── bin/nucleus/       Cross-project learning store CLI
+├── bin/               Global CLIs (install once per machine)
+│   ├── atom-setup/    Interactive wizard
+│   ├── nucleus/       Cross-project learning store CLI
+│   └── model-race/    Parallel AI model comparison via Git worktrees
 │
 ├── scripts/           Maintenance scripts (e.g. copy-learnings.mjs)
 │
@@ -78,75 +181,85 @@ atom/
     └── mobile/                (placeholder — future presets)
 ```
 
-## How to use
+</details>
 
-### Starting a new project
+<details>
+<summary><strong>The 10 wizard sections</strong></summary>
 
-```bash
-git clone <atom-repo-url> ~/work/<new-project>
-cd ~/work/<new-project>
+1. **Project basics** — name, description, visibility, multi-agent y/n
+2. **Stack & deploy** — primary stack, deploy target. Drives presets.
+3. **nucleus** — enable, capture mode (claude-managed / auto-timer / manual)
+4. **Memory stack** — mem0 / Multica / Chrome DevTools MCP
+5. **Workflow tooling** — Spec Kit + Task Master, GSD, model-race
+6. **Docker** — None / Dockerfile / + compose / + devcontainer (smart-defaulted from stack)
+7. **License** — MIT / Apache-2.0 / GPL-3.0 / Proprietary / None
+8. **CI/CD** — auto-deploy on push to main (only asked if deploy target concrete)
+9. **Constitution** — generate starter constitution after setup
+10. **Git** — fresh `git init`, optional remote URL
 
-# Open in your AI tool of choice. Claude Code auto-loads CLAUDE.md (which
-# forwards to AGENTS.md) and walks you through the bootstrap. Codex CLI,
-# Gemini CLI, Cursor, and Copilot read AGENTS.md directly. Scaffold gets
-# copied, placeholders filled, tooling installed, constitution drafted,
-# first phase planned.
-```
+`--bare` skips all of these and uses sane defaults. `--minimal` asks only the essentials (1, 2, 3, 7, 10).
 
-### Adding a new learning back to atom
+</details>
 
-```bash
-cd ~/work/atom
+<details>
+<summary><strong>Polish features (every wizard run)</strong></summary>
 
-# Either edit docs/INBOX.md directly with a raw note, or ask Claude:
-#   "Add this learning to atom: <rough description>"
-# Claude will apply the generalisation test, propose structured wording,
-# and commit if it passes. See CONTRIBUTING.md for the rules.
-```
+- **Pre-flight detection.** Checklist of `git`, `node`, `gh`, `docker`, `gum` availability at the top of every run.
+- **Smart defaults.** Project name from `cwd`. Author/email from `git config`. GitHub user from `gh auth status`. Year from current date.
+- **Final confirmation.** Summary screen BEFORE writing any files. Press Enter to confirm or N to bail.
+- **Resume support.** Cancel mid-wizard, re-run with `--resume` to pick up where you left off. State at `.atom-setup-state.json` (gitignored). Secrets stripped before write.
+- **Idempotent.** Re-runnable. Running again does not break partial config; you can re-enable features you previously declined.
+- **Dry run.** `--dry-run` shows everything that would change without writing a single file.
 
-## Tool compatibility
+</details>
 
-atom is **built primarily for Claude Code**. The richest experience —
-slash commands, the nucleus skill, deep tooling integration — assumes
-you are working in Claude Code. If you use Claude, everything just
-works.
+---
 
-**Other AI tools work, with caveats.** Codex CLI (GPT), Gemini CLI,
-Cursor, and GitHub Copilot all read `AGENTS.md` (or a forwarder
-pointing to it). The full project instructions, including how to use
-nucleus and model-race, live in `AGENTS.md`. So the *knowledge* of
-atom's tooling is universal — every AI tool that lands in this project
-will know nucleus exists, when to search it, and when to capture.
+## Documentation
 
-What other tools miss today:
+- [`AGENTS.md`](AGENTS.md) — what every AI tool reads when it lands in this repo
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add learnings back to atom (generalization test, two-stage workflow)
+- [`bin/atom-setup/README.md`](bin/atom-setup/README.md) — wizard reference
+- [`bin/nucleus/README.md`](bin/nucleus/README.md) — nucleus CLI reference, schema, capture modes
+- [`bin/model-race/README.md`](bin/model-race/README.md) — race lifecycle, config, scoring
+- [`docs/planning/`](docs/planning/) — per-feature build plans (decisions + rationale)
+- [`docs/LEARNINGS_TAXONOMY.md`](docs/LEARNINGS_TAXONOMY.md) — canonical `applies_to` vocabulary
+- [`extras/docker/README.md`](extras/docker/README.md) — Docker tier mapping, stack adaptation patterns
+- [`INSTALL.md`](INSTALL.md) — per-project tooling setup (mem0, Multica, etc.)
 
-- **Skill auto-invocation.** Claude has a Skill tool that activates the
-  nucleus skill at session boundaries. Other tools have to be prompted
-  to remember nucleus, or you call `nucleus add` manually.
-- **Slash commands.** `/gsd-new-project`, `/nucleus-promote`, etc. are
-  Claude-only conventions today.
+---
 
-**Roadmap.** As Codex CLI, Gemini CLI, and others grow richer
-integration surfaces (skill systems, slash command equivalents), atom
-will add tool-specific wrappers that delegate to `AGENTS.md` for
-content. The plan is to never duplicate — one source of truth, multiple
-read paths.
+## Roadmap
 
-If you use Claude Code, run `atom-setup`. If you use something else,
-read `AGENTS.md`, install the `nucleus` CLI from `bin/nucleus/`, and
-invoke it manually as you go. The core works either way; the polish
-is Claude-first today.
+**v0.2 (next)**
+- Stack presets beyond Next.js: Python (FastAPI), Swift, Rust, Go CLI, library starters
+- Live `gh repo create` during the Git section (currently records intent, defers push)
+- Constitution auto-generation via `speckit-constitution` integration
+- `model-race --auto` (parallel session orchestration across CLIs)
+- Semantic search in `nucleus` (`--semantic` flag, vector store)
 
-## Why "atom"
+**v1.0**
+- First public release. Polished docs, demo screencast, full stack-preset coverage.
 
-Atom = nucleus, seed, the unit everything else is built from. Every project
-shipped from this template inherits atom's principles, agent boundaries,
-workflow conventions, and accumulated lessons.
+**Beyond**
+- Tool-specific wrappers as Codex/Gemini/Cursor gain skill-system equivalents
+- Plugin system for custom presets
+- `nucleus` web UI for cross-project learning browsing
 
-## Cadence
+---
 
-- **End of every project**: skim `docs/INBOX.md`, promote what survives the
-  generalisation test, delete the rest. Add new lessons learned. Add new
-  presets to `extras/` if you used a stack that's likely to recur.
-- **End of every quarter**: review `docs/PATTERNS.md` and `docs/LESSONS_LEARNED.md`
-  for entries that have aged out or been superseded.
+## Contributing
+
+atom evolves with every project that's shipped from it. The flow:
+
+1. **During the project**, capture learnings via `nucleus add` (or `docs/INBOX.md` if you prefer manual).
+2. **At the end of the project**, run `nucleus promote <id>` for entries that pass the generalization test. Files land in `atom/learnings/<type>/<slug>.md`.
+3. **Periodically**, refine those into prose for `docs/LESSONS_LEARNED.md`.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the rules and the generalization test.
+
+---
+
+## License
+
+[MIT](LICENSE).
