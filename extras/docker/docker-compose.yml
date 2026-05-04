@@ -1,0 +1,55 @@
+# docker-compose.yml — backing services only.
+#
+# Default mode for atom-bootstrapped projects on macOS dev. Run the app
+# natively (`npm run dev`) for fast hot reload; this file brings up the
+# database and cache in containers.
+#
+# For everything-in-Docker mode (CI, Linux dev, "full Docker"), use
+# `docker-compose.full.yml` instead. Both can run side by side; just
+# pick one.
+#
+# Usage:
+#   docker compose up -d            # start in background
+#   docker compose down             # stop
+#   docker compose logs -f          # follow logs
+#   docker compose ps               # service status
+#
+# Env: reads .env in the project root by default.
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-app}-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-app}-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+volumes:
+  postgres_data:
+  redis_data:

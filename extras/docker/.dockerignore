@@ -1,0 +1,61 @@
+# Keep the build context small. Anything in here is excluded from
+# `docker build` regardless of COPY directives.
+
+# VCS
+.git
+.gitignore
+.github
+
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.pnpm-store
+
+# Python
+__pycache__
+*.pyc
+.venv
+venv
+.tox
+.pytest_cache
+
+# Local env (never bake secrets into images)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.swp
+
+# Docker (avoid recursive context)
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+.devcontainer
+
+# Build artifacts (usually rebuilt during `docker build`)
+dist
+build
+out
+.next
+.turbo
+.cache
+coverage
+
+# Test fixtures
+tests/fixtures
+__tests__/__snapshots__
+
+# atom planning artifacts (only relevant in atom itself)
+docs/planning
+.atom-setup-state.json
+
+# Misc
+*.log
+*.tsbuildinfo

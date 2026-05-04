@@ -55,12 +55,18 @@ atom/
 │   ├── CLAUDE.md      Skeleton — fill <TODO> markers
 │   ├── .gitignore
 │   ├── .github/       CI workflows + PR template
-│   ├── .claude/       Per-agent skill files
-│   ├── package.json   Baseline scripts
-│   └── Dockerfile.example
+│   ├── .claude/       Per-agent skill files (incl. nucleus)
+│   └── package.json   Baseline scripts
 │
-└── extras/            Opt-in stack presets
-    ├── web/nextjs-railway/    Next.js + Railway preset
+├── learnings/         Generalised, structured learnings (graduation layer)
+│
+├── bin/nucleus/       Cross-project learning store CLI
+│
+├── scripts/           Maintenance scripts (e.g. copy-learnings.mjs)
+│
+└── extras/            Opt-in stack presets, copied based on user choice
+    ├── docker/                Dockerfile, compose, devcontainer, CI
+    ├── web/nextjs-railway/    Next.js + Railway preset (incl. Dockerfile)
     ├── ai/                    (placeholder — future presets)
     └── mobile/                (placeholder — future presets)
 ```

@@ -1,0 +1,50 @@
+# Next.js + Railway .dockerignore
+#
+# Keeps the build context small. Anything in here is excluded from
+# `docker build` regardless of COPY directives.
+
+# VCS
+.git
+.gitignore
+.github
+
+# Node
+node_modules
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.pnpm-store
+
+# Local env (never bake secrets into images)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.swp
+
+# Docker (avoid recursive context)
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+.devcontainer
+
+# Next.js build artifacts (rebuilt during `docker build`)
+.next
+out
+.turbo
+.cache
+coverage
+
+# atom planning artifacts
+docs/planning
+.atom-setup-state.json
+
+# Misc
+*.log
+*.tsbuildinfo
+README.md

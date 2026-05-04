@@ -31,12 +31,14 @@ When the user says "let's start a new project from atom", or similar:
    - `docs/HOW_TO_DESIGN.md` — only if the project has a UI
 
 3. **Copy `scaffold/` into the new project repo**. The `.github/`, `.claude/`,
-   `.gitignore`, `package.json`, `Dockerfile.example` all go to the new
-   repo's root.
+   `.gitignore`, `package.json`, `CLAUDE.md` all go to the new repo's root.
+   Docker files do NOT live in `scaffold/` (Docker is fully optional).
 
-4. **If the stack matches one in `extras/<category>/<preset>/`**, also copy
-   that preset into the new repo. Otherwise leave `Dockerfile.example` alone
-   — the user picks framework first.
+4. **Ask the user which Docker tier** (None / Dockerfile / + compose /
+   + devcontainer) and copy the matching subset from `extras/docker/`.
+   See `extras/docker/README.md` for the tier-to-file mapping. If the
+   stack matches one in `extras/<category>/<preset>/` and that preset
+   ships a `Dockerfile`, prefer the stack-specific one over the generic.
 
 5. **Walk the user through filling `scaffold/CLAUDE.md` placeholders**
    (search for `<TODO>` markers): project name, principles, tech stack lock,

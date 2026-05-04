@@ -1,7 +1,16 @@
 # docker — build plan
 
-> Status: locked. Ready to build.
+> Status: built (v0.1).
+> Implementation: `extras/docker/` (generic preset),
+> `extras/web/nextjs-railway/` (stack-specific override).
 > Updated: 2026-05-04
+>
+> **Deviation from original plan**: the plan placed Docker files in
+> `scaffold/`. They moved to `extras/docker/` because `scaffold/` is
+> "files that always ship," and Docker is fully optional per Q-D0.
+> Putting Docker in `scaffold/` would force every "None" tier user to
+> manually delete files. atom-setup now copies from `extras/docker/`
+> based on the chosen tier. Same outcome; cleaner separation.
 
 ## What it is
 
@@ -136,12 +145,13 @@ App service is added in `docker-compose.full.yml`, not the default.
 
 | File | Lives in |
 |---|---|
-| Generic `Dockerfile` (fallback) | `scaffold/Dockerfile` |
+| Generic `Dockerfile` (fallback) | `extras/docker/Dockerfile` |
 | Stack-specific `Dockerfile` | `extras/<category>/<preset>/Dockerfile` |
-| `docker-compose.yml` (backing services) | `scaffold/docker-compose.yml` |
-| `docker-compose.full.yml` (full stack) | `scaffold/docker-compose.full.yml` |
-| `.devcontainer/` config | `extras/devcontainer/` (separate preset) |
-| `.dockerignore` | `scaffold/.dockerignore` |
+| `docker-compose.yml` (backing services) | `extras/docker/docker-compose.yml` |
+| `docker-compose.full.yml` (full stack) | `extras/docker/docker-compose.full.yml` |
+| `.devcontainer/` config | `extras/docker/.devcontainer/` |
+| `.dockerignore` | `extras/docker/.dockerignore` |
+| Multi-arch CI workflow | `extras/docker/.github/workflows/docker.yml` |
 
 Wizard copies based on tier choice.
 
