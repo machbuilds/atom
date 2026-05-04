@@ -1,4 +1,5 @@
-<p align="center">
+<div align="center">
+
 <pre>
    █████╗ ████████╗ ██████╗  ███╗   ███╗
   ██╔══██╗╚══██╔══╝██╔═══██╗ ████╗ ████║
@@ -7,19 +8,45 @@
   ██║  ██║   ██║   ╚██████╔╝ ██║ ╚═╝ ██║
   ╚═╝  ╚═╝   ╚═╝    ╚═════╝  ╚═╝     ╚═╝
 </pre>
-</p>
 
-<p align="center">
-  <strong>atom</strong> — the seed every project starts from.<br>
-  A project-starter template with cross-project memory, multi-tool AI support, and an opinionated dev workflow baked in.
-</p>
+### the seed every project starts from
 
-<p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <img alt="Node 18+" src="https://img.shields.io/badge/node-%E2%89%A518-green">
-  <img alt="Built with clack" src="https://img.shields.io/badge/wizard-%40clack%2Fprompts-purple">
-  <a href="docs/planning/"><img alt="Build status: v0.1" src="https://img.shields.io/badge/build-v0.1%20feature%20complete-success"></a>
-</p>
+A project-starter template with cross-project memory, multi-tool AI support, and an opinionated dev workflow baked in.
+
+<br>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-00bcd4?style=for-the-badge)](LICENSE)
+[![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Build: v0.1](https://img.shields.io/badge/build-v0.1%20feature%20complete-00bcd4?style=for-the-badge)](docs/planning/)
+[![AI Tools](https://img.shields.io/badge/AI%20tools-Claude%20%C2%B7%20Codex%20%C2%B7%20Gemini%20%C2%B7%20Cursor%20%C2%B7%20Copilot-7c4dff?style=for-the-badge)](#tool-compatibility)
+
+</div>
+
+---
+
+## Contents
+
+[**Requirements**](#requirements) · [**Quick start**](#quick-start) · [**Features**](#what-atom-gives-you) · [**Why nucleus**](#the-nucleus-story) · [**Comparison**](#how-it-compares) · [**Compatibility**](#tool-compatibility) · [**Modes**](#modes) · [**Docs**](#documentation) · [**Roadmap**](#roadmap)
+
+---
+
+## Requirements
+
+Before you clone, make sure you have:
+
+| Tool | Required? | Why | Check |
+|---|---|---|---|
+| **Node.js 18+** | Required | atom's three CLIs (`atom-setup`, `nucleus`, `model-race`) are Node packages. | `node --version` |
+| **Git 2.5+** | Required | Cloning atom, fresh `git init` after setup, `model-race` uses Git worktrees (Git ≥ 2.5). | `git --version` |
+| **npm** (ships with Node) | Required | Used to install the three CLIs globally. | `npm --version` |
+| **GitHub CLI (`gh`)** | Optional | Lets `atom-setup` auto-create a private GitHub repo, and `nucleus init` auto-wire its sync repo. Falls back gracefully if missing. | `gh --version` |
+| **Docker** | Optional | Only needed if you pick a Docker tier in the wizard (`Dockerfile` / `+ compose` / `+ devcontainer`). Skip if you're shipping to Vercel/Netlify or building a CLI/mobile app. | `docker --version` |
+| **An AI CLI** | Recommended | atom is built primarily for [Claude Code](https://github.com/anthropics/claude-code). Codex CLI, Gemini CLI, Cursor, and GitHub Copilot also work via `AGENTS.md`. | `claude --version` |
+
+> [!NOTE]
+> The wizard runs a pre-flight check at startup and shows you what's installed before any questions. Missing required tools = it stops with a clear message; missing optional tools = some sections offer fallback paths.
+
+Platform: macOS, Linux. Windows users need Git Bash, WSL, or similar for the shell-style commands; the Node CLIs themselves are cross-platform.
 
 ---
 
@@ -33,11 +60,13 @@ atom-setup
 
 `atom-setup` is an interactive wizard. It walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
 
-Want zero questions? Run `atom-setup --bare` instead.
+> [!TIP]
+> Want zero questions? Run `atom-setup --bare` and you're done in under 5 seconds.
 
 ### First time? Install atom's CLIs once
 
-atom ships three Node CLIs that go on your `PATH` once per machine:
+> [!IMPORTANT]
+> atom ships three Node CLIs that go on your `PATH` once per machine. Run these from inside the cloned `atom` directory:
 
 ```bash
 (cd bin/atom-setup && npm install -g .)
@@ -111,7 +140,8 @@ The first arrow is automated. The second is human-in-the-loop. The third is rare
 
 ## Tool compatibility
 
-atom is **built primarily for Claude Code**. The richest experience — slash commands, the nucleus skill, deep tooling integration — assumes you're working in Claude Code. If you use Claude, everything just works.
+> [!NOTE]
+> atom is built primarily for **Claude Code**. The richest experience — slash commands, the nucleus skill, deep tooling integration — assumes you're working in Claude Code. If you use Claude, everything just works.
 
 **Other AI tools work, with caveats.** Codex CLI (GPT), Gemini CLI, Cursor, and GitHub Copilot all read `AGENTS.md` (or a forwarder pointing to it). The full project instructions, including how to use nucleus and model-race, live in `AGENTS.md`. Every AI tool that lands in this project knows nucleus exists, when to search it, and when to capture.
 
@@ -236,6 +266,9 @@ atom/
 ---
 
 ## Roadmap
+
+> [!TIP]
+> atom is **v0.1, feature-complete**. Everything in the [Features](#what-atom-gives-you) table works today. The roadmap below is what's coming next, not what's missing.
 
 **v0.2 (next)**
 - Stack presets beyond Next.js: Python (FastAPI), Swift, Rust, Go CLI, library starters
