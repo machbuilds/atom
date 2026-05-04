@@ -31,15 +31,21 @@ cd my-project
 atom-setup
 ```
 
-Done. The cloned directory becomes your new project — atom-maintenance content removed, your stack preset and Docker tier copied in, fresh git history with one initial commit.
+`atom-setup` is an interactive wizard. It walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
 
-Don't have `atom-setup` yet? Install once per machine:
+Want zero questions? Run `atom-setup --bare` instead.
+
+### First time? Install atom's CLIs once
+
+atom ships three Node CLIs that go on your `PATH` once per machine:
 
 ```bash
-cd bin/atom-setup && npm install -g .
-cd ../nucleus    && npm install -g .   # cross-project learning store
-cd ../model-race && npm install -g .   # parallel AI model workflow
+(cd bin/atom-setup && npm install -g .)
+(cd bin/nucleus    && npm install -g .)   # cross-project learning store
+(cd bin/model-race && npm install -g .)   # parallel AI model workflow
 ```
+
+After that, `atom-setup`, `nucleus`, and `model-race` are available in any project. Requires Node 18+.
 
 ---
 
