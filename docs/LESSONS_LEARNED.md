@@ -22,7 +22,7 @@ the deploy is rejected with no build logs.
 Pin to caret-minor (`^14.2.x` for npm, `~=2.1.0` for Python, etc.) so
 patch-level security fixes flow automatically.
 
-**How to apply**: in the project's `CLAUDE.md` "Tech stack (locked)"
+**How to apply**: in the project's `AGENTS.md` "Tech stack (locked)"
 section, document versions as caret-minor unless reproducibility demands
 exact-patch. Re-evaluate the lock at every milestone gate.
 
@@ -46,7 +46,7 @@ fields). Restart-loop behaviour gets reserved for genuine breakage.
 
 **How to apply**: every service's healthcheck endpoint maintains explicit
 `REQUIRED` and `OPTIONAL` lists. Cross-reference from the env vars
-table in the project's `CLAUDE.md`.
+table in the project's `AGENTS.md`.
 
 ---
 
@@ -65,7 +65,7 @@ silently use a stale fallback.
 
 Before declaring "config is fully env-driven", grep the codebase for
 all variant names AND for the hardcoded fallback strings. Consolidate
-to one canonical name. Document it in `CLAUDE.md`.
+to one canonical name. Document it in `AGENTS.md`.
 
 **How to apply**: at every milestone gate, run a quick audit:
 ```
@@ -179,7 +179,7 @@ every restore. The cost is zero. The benefit is catching the case
 where someone else (or another agent, or a different worktree) pushed
 work you're about to nuke.
 
-**How to apply**: include in scaffold's `CLAUDE.md` git rules. Codify
+**How to apply**: include in scaffold's `AGENTS.md` git rules. Codify
 as a hard rule, not a recommendation.
 
 ---
@@ -220,7 +220,7 @@ window.
 If the operation must happen, upgrade the plan first. Don't gamble the
 demo on quota.
 
-**How to apply**: in `CLAUDE.md`'s "External APIs" or equivalent section,
+**How to apply**: in `AGENTS.md`'s "External APIs" or equivalent section,
 note each API's quota reset time. Reference from any task that performs
 batch operations.
 
@@ -241,7 +241,7 @@ platform's scanner blocks.
 Fix by upgrading the flagged dep to its patched version, then redeploy.
 Don't fight the scanner — it's catching real CVEs.
 
-**How to apply**: in `CLAUDE.md`'s deploy section, note the platform's
+**How to apply**: in `AGENTS.md`'s deploy section, note the platform's
 pre-build scan behaviour (if any) and how to find its diagnosis output.
 Reference in the troubleshooting section.
 

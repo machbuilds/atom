@@ -36,7 +36,7 @@ workflow. Each tool has a clear job. Skipping any of them produces drift.
         │                                                        (verify, fix, deploy)
         │                                                                │
         ▼                                                                │
-  CLAUDE.md ←─── (committed at every step) ───→ mem0 (per-commit memory)
+  AGENTS.md ←─── (committed at every step) ───→ mem0 (per-commit memory)
         ▲                                                                │
         └────────── feeds back into Superpowers loop on next phase ──────┘
 ```
@@ -143,10 +143,10 @@ In a typical project lifecycle:
 In every project bootstrapped from atom:
 
 ```
-project's CLAUDE.md  →  mem0 query  →  GBrain search  →  Multica skill  →  .claude/memory.md
+project's AGENTS.md  →  mem0 query  →  GBrain search  →  Multica skill  →  .claude/memory.md
 ```
 
-The order matters. CLAUDE.md is hand-curated truth (highest signal).
+The order matters. AGENTS.md is hand-curated truth (highest signal).
 mem0 is project-scoped episodic memory. GBrain is cross-project. Multica
 skills are role-specific procedural memory. `.claude/memory.md` is
 auto-generated session notes (lowest signal, highest noise).

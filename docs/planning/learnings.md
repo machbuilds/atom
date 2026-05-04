@@ -39,7 +39,7 @@ docs/LESSONS_LEARNED.md (curated essay-form lessons)
 
 | Decision | Choice | Why |
 |---|---|---|
-| Directory name | `learnings/` | Descriptive; matches existing CLAUDE.md and HANDOFF.md references; renaming for theme adds no value |
+| Directory name | `learnings/` | Descriptive; matches existing AGENTS.md references; renaming for theme adds no value |
 | File path | `learnings/<type>/<slug>.md` | Subdirectory by type makes 50+ entries scannable; date prefix is noise (frontmatter has `ts`) |
 | Promotion mechanism | `nucleus promote <id>` opens `$EDITOR` with generated draft | Combines Claude pattern-matching with human judgment |
 | Bootstrap selection | `applies_to: [universal]` ships always; stack-specific filtered by wizard stack choice | Most learnings are universal; tagging is opt-in for the minority |

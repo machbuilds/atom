@@ -90,7 +90,7 @@ In `docs/DESIGN.md`, write down:
 - The one or two design rules you absolutely will not break (e.g.,
   "primary CTA is always the gradient brand button — no exceptions")
 
-Reference this doc from `CLAUDE.md`'s design section.
+Reference this doc from `AGENTS.md`'s design section.
 
 ## Common mistakes
 

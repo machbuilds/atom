@@ -38,7 +38,7 @@ yourself — your job is to catch it, not patch it.
 
 At task start:
 
-1. **`CLAUDE.md`** — project's static guidance
+1. **`AGENTS.md`** — project's static guidance
 2. **mem0** — `mcp__mem0__search_memories` with `user_id: "<project-slug>"`
 3. **GBrain** — cross-project test patterns if applicable
 4. **This skill file** — your conventions
@@ -46,7 +46,7 @@ At task start:
 ## Per-commit mem0 memory log
 
 After every commit you make, write a mem0 entry per the convention in
-the project's CLAUDE.md. For test-related commits, the non-obvious WHY
+the project's AGENTS.md. For test-related commits, the non-obvious WHY
 often includes "this test catches <specific failure mode>".
 
 ## Constitutional enforcement points

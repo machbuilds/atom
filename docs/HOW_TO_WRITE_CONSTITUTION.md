@@ -81,7 +81,7 @@ become decisions.
 - **minor** when adding a principle
 - **patch** for wording polish that doesn't change meaning
 
-Reference the active version from `CLAUDE.md`. When you violate a
+Reference the active version from `AGENTS.md`. When you violate a
 principle, the diff lives in `git log` — the violation is auditable.
 
 ## The verification step (speckit-constitution)

@@ -41,7 +41,7 @@ the app code yourself.
 
 At task start:
 
-1. **`CLAUDE.md`** — project's static guidance
+1. **`AGENTS.md`** — project's static guidance
 2. **mem0** — `mcp__mem0__search_memories` with `user_id: "<project-slug>"`
    for prior deploy decisions
 3. **GBrain** — cross-project deploy patterns
@@ -49,7 +49,7 @@ At task start:
 
 ## Per-commit mem0 memory log
 
-After every commit, write a mem0 entry per the convention in CLAUDE.md.
+After every commit, write a mem0 entry per the convention in AGENTS.md.
 For deploy commits, the non-obvious WHY often includes:
 - Which platform behaviour motivated the change
 - What the healthcheck previously did and why we changed it
@@ -63,7 +63,7 @@ uphold? Examples:>
 - **<Principle on speed>**: <how — e.g., "deploys complete in <5min;
   if a build step exceeds 30s investigate">
 - **<Principle on cost>**: <how — e.g., "expected baseline cost
-  documented in CLAUDE.md; cost-impacting changes get explicit approval">
+  documented in AGENTS.md; cost-impacting changes get explicit approval">
 - **<Principle on reliability>**: <how — e.g., "healthcheck distinguishes
   required vs optional infra; restart-loops are bugs">
 

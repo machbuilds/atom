@@ -27,7 +27,7 @@ set the `user_id` for this project.
 
 **Configure user_id**: every memory operation in this project uses
 `user_id: "<project-slug>"` (e.g., `"wallet-persona"` for the wallet-persona
-project). Set this in the project's `CLAUDE.md` so future Claude sessions
+project). Set this in the project's `AGENTS.md` so future Claude sessions
 pick it up.
 
 **Verify**:

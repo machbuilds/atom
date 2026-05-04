@@ -1,0 +1,7 @@
+Project instructions live in AGENTS.md. Read that file before starting
+any work.
+
+This .cursorrules exists so Cursor's default rule auto-load works
+without duplicating content.
+
+Open AGENTS.md in the project root and follow the instructions there.

@@ -49,7 +49,7 @@ To add a preset:
      adds that on top")
    - Customisation points (e.g., "edit the ARG list in Dockerfile to
      match your NEXT_PUBLIC_* vars")
-4. Update `atom/CLAUDE.md`'s bootstrap step 4 if needed.
+4. Update `atom/AGENTS.md`'s bootstrap step 4 if needed.
 
 ## What presets are NOT
 

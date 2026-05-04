@@ -67,7 +67,7 @@ test. If it passes, promote with this format:
 <Body — the lesson or pattern, 1–3 short paragraphs.>
 
 **How to apply**: <where in a new project this should be enforced or
-used. Be specific — mention CLAUDE.md sections, agent skill files,
+used. Be specific — mention AGENTS.md sections, agent skill files,
 specific phases, or PR-checklist items.>
 ```
 

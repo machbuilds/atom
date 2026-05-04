@@ -32,14 +32,14 @@ The user decides who does what.
 
 At task start, read in this order:
 
-1. **`CLAUDE.md`** — project's static guidance and constitution version
+1. **`AGENTS.md`** — project's static guidance and constitution version
 2. **mem0** — `mcp__mem0__search_memories` with `user_id: "<project-slug>"`
    to find prior decisions on similar tasks
 3. **GBrain** — cross-project knowledge if applicable (`gbrain search`)
 4. **This skill file** — your conventions
 5. **`.claude/memory.md`** — auto-generated session notes (lowest signal)
 
-When sources conflict, higher-precedence wins. CLAUDE.md beats mem0;
+When sources conflict, higher-precedence wins. AGENTS.md beats mem0;
 mem0 beats GBrain; etc.
 
 ## Per-commit mem0 memory log

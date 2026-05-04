@@ -9,9 +9,9 @@ Scripts in here are run by the atom maintainer (you), not by users of
 atom. Examples of scripts that might land here:
 
 - `sync-from-projects.sh` — pull lessons from a list of project repos
-  back into atom (e.g., scan their CLAUDE.md files for sections marked
+  back into atom (e.g., scan their AGENTS.md files for sections marked
   as "candidate for atom" and append to INBOX.md).
-- `validate-scaffold.sh` — sanity check that `scaffold/CLAUDE.md` has
+- `validate-scaffold.sh` — sanity check that `scaffold/AGENTS.md` has
   all `<TODO>` markers and no project-specific content snuck in.
 - `regenerate-tree.sh` — keep the README.md tree diagram in sync with
   actual directory contents.

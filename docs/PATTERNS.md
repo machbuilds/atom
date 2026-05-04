@@ -16,13 +16,13 @@ non-negotiables that override taste calls.
 Pick at most 5 principles that the project will not compromise on.
 One-line statement + one-paragraph rationale per principle. Version the
 list (semver) and lock it in `.specify/memory/constitution.md`. Reference
-the version from `CLAUDE.md`. Every PR's review checklist includes
+the version from `AGENTS.md`. Every PR's review checklist includes
 "does this respect principles I-V?"
 
 If you find yourself with 8 principles, you don't have a constitution —
 you have a wishlist. Cut.
 
-**How to apply**: include the principles section in `scaffold/CLAUDE.md`
+**How to apply**: include the principles section in `scaffold/AGENTS.md`
 with `<TODO>` markers. Reference them from the PR template's
 "Constitutional checks" section. Re-read them at every milestone gate.
 
@@ -47,7 +47,7 @@ edit the other agent's files. Each agent has a skill file at
 The matrix is part of the constitution. Crossing boundaries silently is
 a constitution violation, not a process suggestion.
 
-**How to apply**: fill the agent ownership table in `scaffold/CLAUDE.md`.
+**How to apply**: fill the agent ownership table in `scaffold/AGENTS.md`.
 Customise each `scaffold/.claude/skills/<role>-agent/SKILL.md` with the
 project's specific paths and conventions.
 
@@ -60,13 +60,13 @@ project's specific paths and conventions.
 **Why this generalises**: silent version drift across team members or
 CI/local mismatches cause hours of debugging.
 
-In `CLAUDE.md`, declare every key dependency with an explicit version
+In `AGENTS.md`, declare every key dependency with an explicit version
 pin: runtime (Node 20, Python 3.12, etc.), framework (Next 14.2.x), key
 libs (the database client, the LLM SDK, etc.). Pin to **minor not exact
 patch** so security fixes flow automatically. Re-evaluate the lock at
 every milestone.
 
-**How to apply**: section in `scaffold/CLAUDE.md` titled "Tech stack
+**How to apply**: section in `scaffold/AGENTS.md` titled "Tech stack
 (locked)". Cross-reference from `package.json` / equivalent.
 
 ---
@@ -89,7 +89,7 @@ behaviour gets reserved for genuine breakage, not graceful-degradation
 paths.
 
 **How to apply**: in the project's `/api/health` (or equivalent),
-maintain `REQUIRED_ENV` and `OPTIONAL_ENV` arrays. In `CLAUDE.md`'s
+maintain `REQUIRED_ENV` and `OPTIONAL_ENV` arrays. In `AGENTS.md`'s
 env vars table, add a column distinguishing the two.
 
 ---
@@ -114,7 +114,7 @@ env, so the flag is hard to forget about post-demo.
 
 **How to apply**: when building any data-fetch fallback for development,
 expose the flag via env var so demo deploys can opt in. Document the
-flag in `CLAUDE.md`'s env vars table with a "MUST REMOVE BEFORE LAUNCH"
+flag in `AGENTS.md`'s env vars table with a "MUST REMOVE BEFORE LAUNCH"
 note.
 
 ---
@@ -134,7 +134,7 @@ After every commit, write a mem0 entry with:
 Don't log derivable facts (file paths, code patterns). Log only what
 won't be obvious from the diff months later.
 
-**How to apply**: codify in `CLAUDE.md` as a per-commit habit. The
+**How to apply**: codify in `AGENTS.md` as a per-commit habit. The
 agent should propose the mem0 entry alongside the commit, then write
 both atomically.
 
@@ -162,19 +162,19 @@ the CU/cost budget per call in the function header.
 
 ### Memory load order
 
-**First encountered**: 2026-04-29 (wallet-persona, CLAUDE.md)
+**First encountered**: 2026-04-29 (wallet-persona, AGENTS.md)
 **Tag**: memory, agent-bootstrapping
 **Why this generalises**: AI agents need a clear precedence when multiple
 memory sources contradict.
 
 Load order at task start:
-**project's CLAUDE.md → mem0 query → GBrain search → Multica skill →
+**project's AGENTS.md → mem0 query → GBrain search → Multica skill →
 .claude/memory.md**
 
 Highest signal first. Most-noisy last. When sources disagree, higher-precedence
 wins.
 
-**How to apply**: state the order in `scaffold/CLAUDE.md`'s "Memory
+**How to apply**: state the order in `scaffold/AGENTS.md`'s "Memory
 architecture" section. Apply uniformly across every agent.
 
 ---
@@ -189,7 +189,7 @@ explicit conversations when they change.
 Store the constitution at `.specify/memory/constitution.md` with a semver
 header. Breaking changes (removing a principle, weakening a constraint)
 bump major. New principles bump minor. Wording polish bumps patch.
-Reference the active version from `CLAUDE.md`.
+Reference the active version from `AGENTS.md`.
 
 When you violate a principle, you don't quietly do it — you bump the
 constitution, write the rationale, and the diff lives in `git log`.
@@ -216,7 +216,7 @@ GitHub recognises this trailer and shows both authors on the commit page.
 Auditable in `git log`. Encourages clear separation of human-authored
 vs AI-collaborative work in code review.
 
-**How to apply**: include in `scaffold/CLAUDE.md`'s git rules section.
+**How to apply**: include in `scaffold/AGENTS.md`'s git rules section.
 The agent appends the trailer automatically when proposing commits.
 
 ---

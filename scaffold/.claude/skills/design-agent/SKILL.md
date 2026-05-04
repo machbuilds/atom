@@ -32,7 +32,7 @@ Don't fetch directly from the database in component code.
 
 At task start, read in this order:
 
-1. **`CLAUDE.md`** — project's static guidance and constitution
+1. **`AGENTS.md`** — project's static guidance and constitution
 2. **`docs/DESIGN.md`** (or equivalent) — the project's design system
 3. **mem0** — `mcp__mem0__search_memories` with `user_id: "<project-slug>"`
 4. **`.claude/references/**`** — design references for this project
@@ -42,7 +42,7 @@ At task start, read in this order:
 ## Per-commit mem0 memory log
 
 After every commit you make, write a mem0 entry per the convention in
-the project's CLAUDE.md.
+the project's AGENTS.md.
 
 ## Constitutional enforcement points
 

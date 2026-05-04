@@ -18,8 +18,8 @@ header comment explaining when to invoke it.
 ## Likely future helpers
 
 - `atom-bootstrap` — copy `scaffold/` into a target dir, prompt for the
-  TODO placeholders, write filled-in `CLAUDE.md`. (Currently this is
-  Claude's job per the bootstrap flow in `CLAUDE.md`. Worth automating
+  TODO placeholders, write filled-in `AGENTS.md`. (Currently this is
+  Claude's job per the bootstrap flow in `AGENTS.md`. Worth automating
   if the flow stabilises.)
 - `atom-setup` — interactive Node + clack wizard. Drives all
   per-project configuration after clone. Build plan in

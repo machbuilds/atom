@@ -12,7 +12,7 @@
 - [ ] `npm test` passes
 - [ ] `npm run build` passes (if applicable)
 - [ ] Tested locally (describe how)
-- [ ] Agent boundary respected (per [CLAUDE.md](../CLAUDE.md))
+- [ ] Agent boundary respected (per [AGENTS.md](../AGENTS.md))
 
 ## Constitutional checks
 

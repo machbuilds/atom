@@ -31,12 +31,27 @@ after cloning produce a project that is actually theirs.
 | Section count | 10 | Covers per-project config without becoming a slog when paired with `--minimal` |
 | Cut-from-wizard policy | Discoverability layer (4-tier) | Wizard stays focused; cut features surface in README, post-setup cheatsheet, `docs/FEATURES.md`, template prompts |
 | Resume support | `.atom-setup-state.json` + `--resume` flag | User can quit mid-flow and pick up later |
-| Modes | `--minimal` (5 essential questions) and `--full` (every section) | Power users skip; cautious users see everything |
+| Modes | `--bare` (no questions, just files) / `--minimal` (5 essential) / default / `--full` (every section) | Real-power users skip everything; cautious users see everything |
 | Idempotency | Re-runnable | Running again does not break partial config; can enable features previously declined |
 | Pre-flight detection | Top of wizard, before any questions | Shows availability of git, node, docker, gh, gum |
 | Smart defaults | Pre-fill from environment | Project name from cwd, GitHub user from `gh auth status`, email from git config |
 | Final confirmation | Summary screen before writing | User can back out if they pick wrong |
 | Per-section explainer | One-line intro under each section header | Users who don't know what mem0 / nucleus / model-race are can still pick |
+
+## Modes
+
+The wizard has four invocation modes:
+
+| Mode | Flag | Behavior |
+|---|---|---|
+| **Bare** | `--bare` | Zero questions. Copies `scaffold/` as-is, infers project name from cwd (or prompts once if ambiguous). No license, no `.env.example`, no constitution, no `nucleus init`, no initial commit. For power users who will configure everything themselves. Done in <5 seconds. Re-runnable as `atom-setup` later (without `--bare`) to opt into wizard sections. |
+| **Minimal** | `--minimal` | 5 essential questions: project name, stack, nucleus y/n, license, git remote. All other choices use sensible defaults. Done in ~30 seconds. |
+| **Default** | (no flag) | All 10 sections, but each has smart defaults the user can press Enter through. Done in ~2 minutes. |
+| **Full** | `--full` | All 10 sections, prompts for every detail (no defaults autopilot). For users who want explicit control. Done in ~5 minutes. |
+
+`--bare` is the escape hatch for power users who view the wizard as
+friction. They get atom's structure and can opt into features later by
+re-running `atom-setup` (it's idempotent and resumable).
 
 ## Sections (10)
 

@@ -10,13 +10,14 @@ A project-starter template. Every new project begins here.
 >
 > **Mode 1 — Bootstrap a new project.** Triggered by: "let's start a new
 > project from atom", "use atom to bootstrap X", or similar.
-> 1. Read `CLAUDE.md` for the full bootstrap flow
+> 1. Read `AGENTS.md` for the full bootstrap flow (`CLAUDE.md`, `GEMINI.md`,
+>    `.cursorrules`, `.github/copilot-instructions.md` are forwarders)
 > 2. Read `docs/VOICE.md`, `docs/WORKFLOW.md`, `docs/PATTERNS.md`,
 >    `docs/LESSONS_LEARNED.md` (in that order — high-signal first)
 > 3. Ask the user for project context (name, stack, deploy target, etc.)
 > 4. Copy `scaffold/` into the new project repo + matching
 >    `extras/<category>/<preset>/` if applicable
-> 5. Fill `<TODO>` markers in `scaffold/CLAUDE.md` with user input
+> 5. Fill `<TODO>` markers in `scaffold/AGENTS.md` with user input
 > 6. Run tooling install per `INSTALL.md`
 >
 > **Mode 2 — Add a learning to atom.** Triggered by: "add this lesson",
@@ -37,7 +38,8 @@ A project-starter template. Every new project begins here.
 
 ```
 atom/
-├── CLAUDE.md          Agent bootstrap — what Claude reads first
+├── AGENTS.md          Canonical AI tooling instructions (every tool reads this)
+├── CLAUDE.md          Forwarder → AGENTS.md (Claude Code auto-load)
 ├── INSTALL.md         Per-project tooling setup
 ├── CONTRIBUTING.md    How to add new learnings to atom
 │
@@ -46,16 +48,21 @@ atom/
 │   ├── WORKFLOW.md
 │   ├── PATTERNS.md
 │   ├── LESSONS_LEARNED.md
+│   ├── LEARNINGS_TAXONOMY.md
 │   ├── HOW_TO_WRITE_CONSTITUTION.md
 │   ├── HOW_TO_PICK_DEPLOY_TARGET.md
 │   ├── HOW_TO_DESIGN.md
+│   ├── planning/      Per-feature build plans
 │   └── INBOX.md       Raw capture before generalising
 │
 ├── scaffold/          Copy these into every new project's repo
-│   ├── CLAUDE.md      Skeleton — fill <TODO> markers
+│   ├── AGENTS.md      Canonical instructions skeleton — fill <TODO> markers
+│   ├── CLAUDE.md      Forwarder → AGENTS.md
+│   ├── GEMINI.md      Forwarder → AGENTS.md
+│   ├── .cursorrules   Forwarder → AGENTS.md
 │   ├── .gitignore
-│   ├── .github/       CI workflows + PR template
-│   ├── .claude/       Per-agent skill files (incl. nucleus)
+│   ├── .github/       CI workflows + PR template + copilot-instructions.md
+│   ├── .claude/       Claude-specific skills (nucleus + agent skills)
 │   └── package.json   Baseline scripts
 │
 ├── learnings/         Generalised, structured learnings (graduation layer)
@@ -79,9 +86,11 @@ atom/
 git clone <atom-repo-url> ~/work/<new-project>
 cd ~/work/<new-project>
 
-# Open in Claude Code. Claude auto-loads CLAUDE.md and walks you through
-# the bootstrap. Scaffold gets copied, placeholders filled, tooling installed,
-# constitution drafted, first phase planned.
+# Open in your AI tool of choice. Claude Code auto-loads CLAUDE.md (which
+# forwards to AGENTS.md) and walks you through the bootstrap. Codex CLI,
+# Gemini CLI, Cursor, and Copilot read AGENTS.md directly. Scaffold gets
+# copied, placeholders filled, tooling installed, constitution drafted,
+# first phase planned.
 ```
 
 ### Adding a new learning back to atom
@@ -94,6 +103,39 @@ cd ~/work/atom
 # Claude will apply the generalisation test, propose structured wording,
 # and commit if it passes. See CONTRIBUTING.md for the rules.
 ```
+
+## Tool compatibility
+
+atom is **built primarily for Claude Code**. The richest experience —
+slash commands, the nucleus skill, deep tooling integration — assumes
+you are working in Claude Code. If you use Claude, everything just
+works.
+
+**Other AI tools work, with caveats.** Codex CLI (GPT), Gemini CLI,
+Cursor, and GitHub Copilot all read `AGENTS.md` (or a forwarder
+pointing to it). The full project instructions, including how to use
+nucleus and model-race, live in `AGENTS.md`. So the *knowledge* of
+atom's tooling is universal — every AI tool that lands in this project
+will know nucleus exists, when to search it, and when to capture.
+
+What other tools miss today:
+
+- **Skill auto-invocation.** Claude has a Skill tool that activates the
+  nucleus skill at session boundaries. Other tools have to be prompted
+  to remember nucleus, or you call `nucleus add` manually.
+- **Slash commands.** `/gsd-new-project`, `/nucleus-promote`, etc. are
+  Claude-only conventions today.
+
+**Roadmap.** As Codex CLI, Gemini CLI, and others grow richer
+integration surfaces (skill systems, slash command equivalents), atom
+will add tool-specific wrappers that delegate to `AGENTS.md` for
+content. The plan is to never duplicate — one source of truth, multiple
+read paths.
+
+If you use Claude Code, run `atom-setup`. If you use something else,
+read `AGENTS.md`, install the `nucleus` CLI from `bin/nucleus/`, and
+invoke it manually as you go. The core works either way; the polish
+is Claude-first today.
 
 ## Why "atom"
 
