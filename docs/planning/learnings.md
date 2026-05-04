@@ -1,6 +1,8 @@
 # learnings — build plan
 
-> Status: locked. Ready to build.
+> Status: built (v0.1).
+> Implementation: `learnings/` directory, `docs/LEARNINGS_TAXONOMY.md`,
+> `scripts/copy-learnings.mjs`. Promotion via `nucleus promote`.
 > Updated: 2026-05-04
 
 ## What it is

@@ -23,14 +23,17 @@ test. Strip the project-specific bits or drop it.
 | The thing | Lives in |
 |---|---|
 | One-line rule of thumb (no story behind it) | Don't add — too thin |
-| Reusable pattern across multiple projects | `docs/PATTERNS.md` |
-| Specific gotcha that bit you and could bite again | `docs/LESSONS_LEARNED.md` |
+| Structured learning, machine-readable, ships to bootstrapped projects | `learnings/<type>/<slug>.md` |
+| Reusable pattern across multiple projects (prose form) | `docs/PATTERNS.md` |
+| Specific gotcha that bit you and could bite again (prose form) | `docs/LESSONS_LEARNED.md` |
 | New stack you'll likely use again (Dockerfile, configs) | `extras/<category>/<preset>/` |
-| Anything not yet decided / quick capture | `docs/INBOX.md` |
+| Anything not yet decided / quick capture (loose) | `docs/INBOX.md` |
+| Project-tagged session captures (machine-readable, on your machine) | `~/.nucleus/projects/<slug>/learnings.jsonl` (via `nucleus add`) |
 | Update to how a workflow tool composes with another | `docs/WORKFLOW.md` |
 | Update to constitution methodology | `docs/HOW_TO_WRITE_CONSTITUTION.md` |
 | Update to deploy decision tree | `docs/HOW_TO_PICK_DEPLOY_TARGET.md` |
 | Update to design flow | `docs/HOW_TO_DESIGN.md` |
+| Update to `applies_to` vocabulary | `docs/LEARNINGS_TAXONOMY.md` |
 
 ## Two-stage workflow
 
@@ -77,6 +80,52 @@ INBOX.md is a working file, not an archive. Skim it at:
 
 If an INBOX entry has been sitting unrefined for 6+ months, it probably
 wasn't a real lesson. Delete without guilt.
+
+## The nucleus path (machine-captured learnings)
+
+The two-stage INBOX flow above is human-driven. atom also has a
+machine-driven path through `nucleus`:
+
+```
+session                                               (Claude or you capture)
+  ↓ nucleus add ...
+~/.nucleus/projects/<slug>/learnings.jsonl            (raw, project-tagged, on your machine)
+  ↓ nucleus promote <id>                              (when the lesson generalises)
+atom/learnings/<type>/<slug>.md                       (curated, ships to bootstrapped projects)
+  ↓ refine into prose                                 (rare, manual)
+atom/docs/LESSONS_LEARNED.md                          (essay form, narrative)
+```
+
+The two paths converge at the same generalisation test. Use whichever
+fits the moment:
+
+- **Mid-session, raw observation** → `nucleus add` (zero context
+  switch). It captures into `~/.nucleus`, project-tagged, with full
+  metadata (type, confidence, tags, files).
+- **End of session, sweep** → review nucleus entries, promote the ones
+  worth shipping with `nucleus promote <id>`.
+- **Hindsight, weeks later, not project-tagged** → append to
+  `docs/INBOX.md` and let the two-stage flow handle it.
+- **A learning has cooled and you want it as long-form prose** →
+  refine the `learnings/<type>/<slug>.md` into `LESSONS_LEARNED.md`
+  and link them via the file's frontmatter.
+
+### The `learnings/` layer specifically
+
+Files in `learnings/<type>/<slug>.md` ship into bootstrapped projects
+via `scripts/copy-learnings.mjs`, filtered by the project's stack
+tags against the file's `applies_to`. See `docs/LEARNINGS_TAXONOMY.md`
+for the canonical vocabulary.
+
+`learnings/` is the **graduation layer** — content here propagates
+forward to every new project. That makes the bar higher than INBOX.
+A learning belongs in `learnings/` when:
+
+- It has been seen on at least two unrelated projects, OR
+- It is project-agnostic by construction (a language pattern, a
+  common pitfall in a domain).
+
+If you are not sure, capture in nucleus and wait. Promote later.
 
 ## Anti-patterns
 
