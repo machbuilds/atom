@@ -1,7 +1,16 @@
 # atom-setup — build plan
 
-> Status: locked. Ready to build.
-> Updated: 2026-05-04
+> Status: built (v0.1).
+> Implementation: `bin/atom-setup/`.
+> Updated: 2026-05-05
+>
+> **Live limitations to address in v0.2**:
+> - Constitution generation is a TODO marker in the cheatsheet, not an
+>   automated flow. User runs `speckit-constitution` themselves.
+> - `gh repo create` during Git section stores intent but defers actual
+>   creation. Push happens manually post-setup.
+> - Stack presets shipping today: `nextjs` only. Other stacks fall back
+>   to the generic scaffold.
 
 ## What it is
 
