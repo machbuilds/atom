@@ -71,6 +71,24 @@ similar:
 6. **Always commit changes to atom** with a message that names the
    source project (e.g., `lessons: pin deps to minor (from wallet-persona)`).
 
+### Mode 3 — Build atom features
+
+When the user says "let's build nucleus", "start on Docker", "build the
+wizard", or similar:
+
+1. **Read the relevant plan** in `docs/planning/<feature>.md`. Each plan
+   captures locked decisions, rationale, schemas, and risks. Plans are
+   the source of truth for build work.
+2. **Build order (locked)**: nucleus → learnings → docker → model-race.
+   `atom-setup` builds incrementally as features land.
+3. **Do not re-litigate decisions in the plan without a written reason.**
+   The decisions came from a thorough planning session. If you find a
+   reason to deviate, surface it before changing course.
+4. After each feature ships, update its plan doc with `Status: built`
+   and link the implementation files.
+5. Cross-feature references: `nucleus` powers `learnings`; `atom-setup`
+   wires both into the wizard. Build order respects this.
+
 ## What NOT to do here
 
 - **Don't develop application features inside atom.** This repo seeds new
