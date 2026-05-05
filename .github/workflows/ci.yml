@@ -58,6 +58,30 @@ jobs:
       - name: Smoke test (--help)
         run: node scripts/copy-learnings.mjs --help
 
+  wizard-e2e:
+    name: atom-setup wizard end-to-end (53 assertions)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set git identity for test runs
+        run: |
+          git config --global user.email "ci@atom.test"
+          git config --global user.name "atom CI"
+
+      - name: Install atom-setup deps
+        working-directory: bin/atom-setup
+        run: npm ci || npm install
+
+      - name: Run wizard test suite
+        run: bash scripts/test-atom-setup.sh
+
   docs:
     name: docs sanity
     runs-on: ubuntu-latest
