@@ -169,23 +169,25 @@ function reinitGit(root, answers, log) {
   log(`git: initial commit on main`);
 }
 
-function walkAndCopy(srcDir, dstDir, log, dryRun) {
+function walkAndCopy(srcDir, dstDir, log, dryRun, rootDst = dstDir) {
   for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
     const src = join(srcDir, entry.name);
     const dst = join(dstDir, entry.name);
+    const rel = relative(rootDst, dst);
     if (entry.isDirectory()) {
       if (dryRun) {
-        log(`(dry-run) mkdir + copy: ${relative(dstDir, dst)}/`);
+        log(`(dry-run) mkdir + copy: ${rel}/`);
       } else {
         mkdirSync(dst, { recursive: true });
       }
-      walkAndCopy(src, dst, log, dryRun);
+      walkAndCopy(src, dst, log, dryRun, rootDst);
     } else {
       if (dryRun) {
-        log(`(dry-run) copy: ${relative(dstDir, dst)}`);
+        log(`(dry-run) copy: ${rel}`);
       } else {
         mkdirSync(dirname(dst), { recursive: true });
         copyFileSync(src, dst);
+        log(`copy: ${rel}`);
       }
     }
   }

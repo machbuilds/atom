@@ -139,7 +139,7 @@ async function main(opts) {
   }
 
   if (logLines.length > 0) {
-    note(logLines.slice(0, 25).join('\n') + (logLines.length > 25 ? `\n${color.dim(`... and ${logLines.length - 25} more`)}` : ''), 'Changes');
+    note(renderChanges(logLines), 'Changes');
   }
 
   if (!opts.dryRun) {
@@ -152,6 +152,38 @@ async function main(opts) {
       ? `${color.green('✓')} Dry run complete. Re-run without ${color.cyan('--dry-run')} to apply.`
       : `${color.green('✓')} ${color.bold(state.answers.projectName)} is ready. ${color.dim('See "What\'s next" above.')}`,
   );
+}
+
+function renderChanges(logLines) {
+  // Group operations by kind for a clearer summary. atom-setup is doing a
+  // lot — copying scaffold, applying presets, removing atom-maintenance
+  // content — and dumping the raw operation log makes the destructive
+  // bits look scarier than they are.
+  const counts = { copy: 0, docker: 0, learning: 0, remove: 0 };
+  const milestones = [];
+  for (const line of logLines) {
+    if (line.startsWith('copy:') || line.startsWith('(dry-run) copy:') || line.startsWith('(dry-run) mkdir')) {
+      counts.copy++;
+    } else if (line.startsWith('docker copy:') || line.startsWith('(dry-run) docker copy:')) {
+      counts.docker++;
+    } else if (line.startsWith('learning copy:') || line.startsWith('(dry-run) learning copy:')) {
+      counts.learning++;
+    } else if (line.startsWith('remove:') || line.startsWith('(dry-run) remove:')) {
+      counts.remove++;
+    } else {
+      milestones.push(line);
+    }
+  }
+
+  const lines = [];
+  if (counts.copy > 0)     lines.push(`${color.green('✓')} ${color.cyan('copied')}    ${counts.copy} files (scaffold + stack preset)`);
+  if (counts.docker > 0)   lines.push(`${color.green('✓')} ${color.cyan('docker')}    ${counts.docker} files`);
+  if (counts.learning > 0) lines.push(`${color.green('✓')} ${color.cyan('learnings')} ${counts.learning} files`);
+  if (counts.remove > 0)   lines.push(`${color.dim('-')} ${color.dim('removed')}   ${counts.remove} atom-maintenance paths ${color.dim('(planning docs, source CLIs, scaffold/, etc.)')}`);
+  for (const m of milestones) {
+    lines.push(`${color.green('✓')} ${m}`);
+  }
+  return lines.join('\n');
 }
 
 function pickMode(opts) {
