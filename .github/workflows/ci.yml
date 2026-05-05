@@ -1,0 +1,93 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    name: syntax check (${{ matrix.cli }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cli: [atom-setup, nucleus, model-race]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        working-directory: bin/${{ matrix.cli }}
+        run: npm ci || npm install
+
+      - name: Syntax check entry point
+        working-directory: bin/${{ matrix.cli }}
+        run: node --check bin/${{ matrix.cli }}.js
+
+      - name: --version smoke test
+        working-directory: bin/${{ matrix.cli }}
+        run: node bin/${{ matrix.cli }}.js --version
+
+      - name: --help smoke test
+        working-directory: bin/${{ matrix.cli }}
+        run: node bin/${{ matrix.cli }}.js --help
+
+  scripts:
+    name: scripts/copy-learnings.mjs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax check
+        run: node --check scripts/copy-learnings.mjs
+
+      - name: Smoke test (--help)
+        run: node scripts/copy-learnings.mjs --help
+
+  docs:
+    name: docs sanity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: AGENTS.md exists
+        run: test -f AGENTS.md
+
+      - name: CLAUDE.md forwards to AGENTS.md
+        run: grep -q "AGENTS.md" CLAUDE.md
+
+      - name: scaffold/AGENTS.md exists
+        run: test -f scaffold/AGENTS.md
+
+      - name: scaffold forwarders exist
+        run: |
+          test -f scaffold/CLAUDE.md
+          test -f scaffold/GEMINI.md
+          test -f scaffold/.cursorrules
+          test -f scaffold/.github/copilot-instructions.md
+
+      - name: LICENSE exists
+        run: test -f LICENSE
+
+      - name: All planning docs exist
+        run: |
+          test -f docs/planning/atom-setup.md
+          test -f docs/planning/nucleus.md
+          test -f docs/planning/learnings.md
+          test -f docs/planning/docker.md
+          test -f docs/planning/model-race.md
