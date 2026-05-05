@@ -53,7 +53,7 @@ Platform: macOS, Linux. Windows users need Git Bash, WSL, or similar for the she
 ## Quick start
 
 ```bash
-git clone https://github.com/mach273/atom.git my-project
+git clone https://github.com/machbuilds/atom.git my-project
 cd my-project
 atom-setup
 ```

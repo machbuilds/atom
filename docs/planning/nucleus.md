@@ -53,7 +53,7 @@ Each entry is one line in `learnings.jsonl`:
   "id": "01HXY...",
   "ts": "2026-05-04T15:23:11Z",
   "schema_version": 1,
-  "project": "mach273-atom",
+  "project": "machbuilds-atom",
   "type": "architecture",
   "key": "nucleus-uses-jsonl-not-sqlite",
   "insight": "Chose JSONL over SQLite for ~/.nucleus because git-diffable, grep-able, and human-readable. SQLite would be faster but kills the cross-project sync story.",
@@ -132,7 +132,7 @@ nucleus search "..." --semantic              # reserved for future
 Default human-readable output:
 
 ```
-mach273-atom · pitfall · high · 2026-04-12
+machbuilds-atom · pitfall · high · 2026-04-12
   Auth token refresh races on parallel requests cause 401 storms.
   Cache the refresh promise; share it across concurrent calls.
   → src/auth/refresh.ts

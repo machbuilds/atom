@@ -15,8 +15,8 @@ If you discover a security vulnerability in atom, the three CLIs (`atom-setup`, 
 
 Instead, use one of these private channels:
 
-1. **GitHub Security Advisories** (preferred). Open a private advisory at https://github.com/mach273/atom/security/advisories/new. The maintainer is notified directly and the disclosure stays embargoed until a fix lands.
-2. **Email**: send a description to the maintainer's contact email listed in the GitHub profile at https://github.com/mach273. Include "atom security" in the subject.
+1. **GitHub Security Advisories** (preferred). Open a private advisory at https://github.com/machbuilds/atom/security/advisories/new. The maintainer is notified directly and the disclosure stays embargoed until a fix lands.
+2. **Email**: send a description to the maintainer's contact email listed in the GitHub profile at https://github.com/machbuilds. Include "atom security" in the subject.
 
 Please include:
 

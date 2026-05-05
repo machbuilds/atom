@@ -30,5 +30,5 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/mach273/atom/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/mach273/atom/releases/tag/v0.1.0
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/machbuilds/atom/releases/tag/v0.1.0

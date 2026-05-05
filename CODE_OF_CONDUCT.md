@@ -31,7 +31,7 @@ This Code applies in all project spaces — issues, pull requests, discussions, 
 
 ## Reporting
 
-To report unacceptable behaviour, open a private security advisory on the [atom repo](https://github.com/mach273/atom/security/advisories/new) or email the maintainer (see `SECURITY.md` for current contact). All complaints will be reviewed promptly and confidentially.
+To report unacceptable behaviour, open a private security advisory on the [atom repo](https://github.com/machbuilds/atom/security/advisories/new) or email the maintainer (see `SECURITY.md` for current contact). All complaints will be reviewed promptly and confidentially.
 
 ## Attribution
 
