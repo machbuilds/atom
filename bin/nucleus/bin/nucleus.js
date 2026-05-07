@@ -9,6 +9,7 @@ import { registerAddCommand } from '../src/commands/add.js';
 import { registerSearchCommand } from '../src/commands/search.js';
 import { registerSyncCommand } from '../src/commands/sync.js';
 import { registerPromoteCommand } from '../src/commands/promote.js';
+import { registerMigrateCommand } from '../src/commands/migrate.js';
 import { migrateLegacyHomeIfNeeded } from '../src/lib/paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -36,6 +37,7 @@ registerAddCommand(program);
 registerSearchCommand(program);
 registerSyncCommand(program);
 registerPromoteCommand(program);
+registerMigrateCommand(program);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err.message || err);

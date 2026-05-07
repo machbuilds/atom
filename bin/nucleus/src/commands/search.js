@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import color from 'picocolors';
 import { NUCLEUS_PROJECTS_DIR, learningsFile } from '../lib/paths.js';
 import { readEntries } from '../lib/jsonl.js';
+import { autoMigrateIfNeeded } from './migrate.js';
 
 const CONFIDENCE_RANK = { low: 1, medium: 2, high: 3 };
 
@@ -21,11 +22,13 @@ export function registerSearchCommand(program) {
     .option('--limit <n>', 'max results', parseInt)
     .option('--json', 'output JSON instead of formatted text')
     .option('--semantic', '[reserved] semantic search via embeddings (not yet implemented)')
-    .action((query, opts) => {
+    .action(async (query, opts) => {
       if (opts.semantic) {
         console.error('--semantic search is reserved for a future release.');
         process.exit(1);
       }
+
+      await autoMigrateIfNeeded();
 
       if (!existsSync(NUCLEUS_PROJECTS_DIR)) {
         if (opts.json) console.log('[]');

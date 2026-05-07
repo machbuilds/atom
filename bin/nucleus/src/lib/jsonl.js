@@ -32,7 +32,10 @@ export function readEntries(filePath) {
           `Failed to parse JSONL at line ${i + 1} of ${filePath}: ${err.message}`,
         );
       }
-    });
+    })
+    // Skip the optional file header (added by the migration framework
+    // in v0.2). Entries lack `_atom_nucleus`; the header carries it.
+    .filter((obj) => obj && obj._atom_nucleus !== true);
 }
 
 export function readAllEntries(allFiles) {

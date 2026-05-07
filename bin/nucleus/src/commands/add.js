@@ -5,6 +5,7 @@ import { deriveSlug } from '../lib/slug.js';
 import { readConfig, isEnabled } from '../lib/config.js';
 import { learningsFile } from '../lib/paths.js';
 import { appendEntry, SCHEMA_VERSION } from '../lib/jsonl.js';
+import { autoMigrateIfNeeded } from './migrate.js';
 
 const TYPES = [
   'architecture',
@@ -40,6 +41,8 @@ export function registerAddCommand(program) {
         console.error('nucleus not initialized. Run `nucleus init` first.');
         process.exit(1);
       }
+
+      await autoMigrateIfNeeded();
 
       const slug = deriveSlug(opts.cwd);
       if (!slug) {
