@@ -11,6 +11,12 @@
 >   creation. Push happens manually post-setup.
 > - Stack presets shipping today: `nextjs` only. Other stacks fall back
 >   to the generic scaffold.
+> - **Install-path dependency bug**: `./atom-setup` runs `npm install -g .`
+>   in each `bin/<cli>/` but does not first run `npm install` (no `-g`) to
+>   populate the source's `node_modules/`. Result: a fresh `git clone +
+>   ./atom-setup` crashes on first run with `ERR_MODULE_NOT_FOUND` for
+>   `commander`, etc. Fix: add a `(cd "$ATOM_DIR/bin/$cli" && npm install)`
+>   step before the existing `npm install -g .` loop in the bash wrapper.
 
 ## What it is
 
