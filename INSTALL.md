@@ -15,7 +15,15 @@ For a fresh project bootstrapped from atom, run the machine-level steps first (i
 
 ### 1. atom's three CLIs
 
-Inside the cloned `atom` directory:
+Inside the cloned `atom` directory, run the one-line installer:
+
+```bash
+./install.sh
+```
+
+It checks for Node 18+, then installs `atom-setup`, `nucleus`, and `model-race` globally. Idempotent — re-running just refreshes them.
+
+Manual equivalent (if you'd rather not use the script):
 
 ```bash
 (cd bin/atom-setup && npm install -g .)
@@ -31,7 +39,7 @@ nucleus --version
 model-race --version
 ```
 
-Requires Node 18+.
+If `./install.sh` fails with `EACCES`, use `sudo ./install.sh` or set up an npm prefix that doesn't need sudo (https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally).
 
 ### 2. nucleus init
 

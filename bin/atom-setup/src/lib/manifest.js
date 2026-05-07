@@ -31,6 +31,10 @@ export const REMOVE_BEFORE_PROMOTE = [
   'README.md',
   'AGENTS.md',
   'CLAUDE.md',
+  'CHANGELOG.md',
+  'CODE_OF_CONDUCT.md',
+  'SECURITY.md',
+  'install.sh',
 ];
 
 // Source directories that are removed AFTER promotion + preset copy.

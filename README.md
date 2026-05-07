@@ -53,20 +53,13 @@ Platform: macOS, Linux. Windows users need Git Bash, WSL, or similar for the she
 ## Quick start
 
 ```bash
-# Clone atom into your new project name
 git clone https://github.com/machbuilds/atom.git my-project
 cd my-project
-
-# First time only — install atom's CLIs (one-time per machine)
-(cd bin/atom-setup && npm install -g .)
-(cd bin/nucleus    && npm install -g .)
-(cd bin/model-race && npm install -g .)
-
-# Launch the wizard
+./install.sh         # one-time per machine
 atom-setup
 ```
 
-The three `npm install -g` lines are a **one-time-per-machine install**. After the first clone, `atom-setup`, `nucleus`, and `model-race` are on your `PATH` globally — skip those three lines on future projects and go straight to `atom-setup`.
+`./install.sh` installs atom's three CLIs (`atom-setup`, `nucleus`, `model-race`) globally. It's a **one-time-per-machine** step — skip it on future clones.
 
 `atom-setup` is an interactive wizard. It walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
 
@@ -74,7 +67,7 @@ The three `npm install -g` lines are a **one-time-per-machine install**. After t
 > Want zero questions? Run `atom-setup --bare` and you're done in under 5 seconds.
 
 > [!NOTE]
-> If `npm install -g` errors with `EACCES`, you need to either prefix with `sudo` or [set up a global npm prefix that doesn't need sudo](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). Both work.
+> If `./install.sh` errors with `EACCES`, you need to either prefix the command with `sudo` or [set up an npm prefix that doesn't need sudo](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). The installer points you at this if it fails.
 
 ---
 

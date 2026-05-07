@@ -156,25 +156,29 @@ assert_not "2.23 scaffold/ removed (was promoted)" test -d "$T2/scaffold"
 assert_not "2.24 docs/planning/ removed" test -d "$T2/docs/planning"
 assert_not "2.25 CONTRIBUTING.md (atom's) removed" test -f "$T2/CONTRIBUTING.md"
 assert_not "2.26 INSTALL.md (atom's) removed" test -f "$T2/INSTALL.md"
+assert_not "2.27 install.sh (atom's installer) removed" test -f "$T2/install.sh"
+assert_not "2.28 CHANGELOG.md (atom's) removed" test -f "$T2/CHANGELOG.md"
+assert_not "2.29 CODE_OF_CONDUCT.md (atom's) removed" test -f "$T2/CODE_OF_CONDUCT.md"
+assert_not "2.30 SECURITY.md (atom's) removed" test -f "$T2/SECURITY.md"
 
 COMMITS=$(cd "$T2" && git log --oneline 2>/dev/null | wc -l | tr -d ' ')
 if [ "$COMMITS" = "1" ]; then
   PASS=$((PASS+1))
-  RESULTS+=("  PASS  2.27 exactly one commit on main")
+  RESULTS+=("  PASS  2.31 exactly one commit on main")
 else
   FAIL=$((FAIL+1))
-  RESULTS+=("  FAIL  2.27 expected 1 commit; got $COMMITS")
+  RESULTS+=("  FAIL  2.31 expected 1 commit; got $COMMITS")
 fi
 
-assert_grep "2.28 commit message shows project name" "test-2-bare" "$LOG_DIR/t2-bare.log"
+assert_grep "2.32 commit message shows project name" "test-2-bare" "$LOG_DIR/t2-bare.log"
 
 BRANCH=$(cd "$T2" && git rev-parse --abbrev-ref HEAD 2>/dev/null)
 if [ "$BRANCH" = "main" ]; then
   PASS=$((PASS+1))
-  RESULTS+=("  PASS  2.29 default branch is 'main'")
+  RESULTS+=("  PASS  2.33 default branch is 'main'")
 else
   FAIL=$((FAIL+1))
-  RESULTS+=("  FAIL  2.29 default branch is '$BRANCH', expected 'main'")
+  RESULTS+=("  FAIL  2.33 default branch is '$BRANCH', expected 'main'")
 fi
 
 # =============================================================
