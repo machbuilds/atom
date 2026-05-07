@@ -11,6 +11,7 @@ Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 - **`VERSION`** at the repo root. Plain text, single line. The source of truth for "what version is atom on?". Polled via `https://raw.githubusercontent.com/machbuilds/atom/main/VERSION` by `atom upgrade`.
 - **`atom upgrade`** subcommand on the `atom` help dispatcher. Detects the install location (`$ATOM_INSTALL` env override → `~/.atom/atom/` → realpath walk-up from this script), reads the local `VERSION`, fetches upstream, and on a mismatch runs `git pull --ff-only` followed by `npm install` + `npm install -g .` for every CLI. Refuses to upgrade if the install dir's git tree is dirty. Network failure is silent and degrades to a no-op. `atom upgrade --check` polls without installing.
 - **`ATOM_VERSION_URL`** env override (testing affordance) — defaults to the `raw.githubusercontent.com` URL above; `data:` URLs are accepted for offline tests.
+- **`./atom-setup --reinstall`** flag on the bash wrapper. Forces re-install of every atom CLI globally even when they're already on PATH. Useful when a global is stale or pointing at an old clone. Stop-gap until `atom upgrade` is the daily refresh path; both flow through the same `npm install` + `npm install -g .` shape that landed in 0.1.2. The flag is consumed by the wrapper and not forwarded to the wizard.
 
 ### Notes
 

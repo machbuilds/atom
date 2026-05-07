@@ -4,9 +4,9 @@
 # First-time use, from inside a freshly cloned atom directory:
 #   ./atom-setup
 #
-# Installs atom's three CLIs globally (if not already present), then
-# launches the interactive wizard to transform this directory into your
-# new project. Forwards any flags to the wizard, e.g.:
+# Installs atom's CLIs globally (if not already present), then launches
+# the interactive wizard to transform this directory into your new
+# project. Forwards any flags to the wizard, e.g.:
 #
 #   ./atom-setup --bare
 #   ./atom-setup --minimal
@@ -14,10 +14,27 @@
 #
 # After the first run, the global `atom-setup` is on your PATH and
 # future clones can skip the `./` and just run `atom-setup`.
+#
+# Wrapper-only flag (consumed here, not forwarded to the wizard):
+#
+#   --reinstall    Re-install every atom CLI globally even if already
+#                  on PATH. Stop-gap until `atom upgrade` is the daily
+#                  refresh path; useful when a global is stale or
+#                  pointing at an old clone.
 
 set -e
 
 ATOM_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# ─── parse wrapper-only flags ───────────────────────────────────────
+FORCE_REINSTALL=0
+WIZARD_ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+    --reinstall) FORCE_REINSTALL=1 ;;
+    *) WIZARD_ARGS+=("$arg") ;;
+  esac
+done
 
 # ─── pre-flight ─────────────────────────────────────────────────────
 if ! command -v node > /dev/null 2>&1; then
@@ -48,22 +65,30 @@ find_global() {
   PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "^$ATOM_DIR$" | tr '\n' ':') command -v "$name" 2>/dev/null
 }
 
-# ─── install CLIs (only what's missing) ─────────────────────────────
+# ─── install CLIs (only what's missing, or all if --reinstall) ──────
 need_install=0
-for cli in "${CLIS[@]}"; do
-  if [ -z "$(find_global $cli)" ]; then
-    need_install=1
-    break
-  fi
-done
+if [ "$FORCE_REINSTALL" = "1" ]; then
+  need_install=1
+else
+  for cli in "${CLIS[@]}"; do
+    if [ -z "$(find_global $cli)" ]; then
+      need_install=1
+      break
+    fi
+  done
+fi
 
 if [ "$need_install" = "1" ]; then
   echo ""
-  echo "Installing atom's CLIs globally (one-time per machine)..."
+  if [ "$FORCE_REINSTALL" = "1" ]; then
+    echo "Re-installing all atom CLIs globally (--reinstall)..."
+  else
+    echo "Installing atom's CLIs globally (one-time per machine)..."
+  fi
   echo ""
 
   for cli in "${CLIS[@]}"; do
-    if [ -n "$(find_global $cli)" ]; then
+    if [ "$FORCE_REINSTALL" != "1" ] && [ -n "$(find_global $cli)" ]; then
       printf "  → %-12s already installed, skipping\n" "$cli"
       continue
     fi
@@ -115,4 +140,4 @@ if [ -z "$GLOBAL_ATOM_SETUP" ]; then
   exit 1
 fi
 
-exec "$GLOBAL_ATOM_SETUP" "$@"
+exec "$GLOBAL_ATOM_SETUP" "${WIZARD_ARGS[@]}"
