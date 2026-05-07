@@ -1,7 +1,7 @@
 # nucleus
 
 Cross-project learning store. Captures durable lessons from coding
-sessions into `~/.nucleus`. Surfaces past lessons when you start new
+sessions into `~/.atom/nucleus`. Surfaces past lessons when you start new
 work in any project.
 
 Independent of GBrain, GStack, or any closed system. Anyone who
@@ -32,14 +32,14 @@ nucleus add "<insight>" --type pitfall --confidence high --tags auth
 nucleus search "auth"                              # keyword search
 nucleus search --type pitfall --confidence high    # structured filter
 nucleus sync                                       # push/pull to GitHub (if configured)
-nucleus promote <id>                               # graduate to atom/learnings/
+nucleus promote <id>                               # graduate to ~/.atom/learnings/
 ```
 
 ## Commands
 
 ### `nucleus init`
 
-Initialize `~/.nucleus`. Asks you:
+Initialize `~/.atom/nucleus`. Asks you:
 - Capture mode (claude-managed default, auto-timer, manual).
 - Whether to sync to a private GitHub repo (smart hybrid: auto-create
   via `gh` if available, accepts an existing URL otherwise).
@@ -50,7 +50,7 @@ Re-runnable. `--yes` uses defaults without prompts.
 
 Print the slug for the current project. Derived from `git config
 remote.origin.url`; falls back to the directory name. Used as the
-key in `~/.nucleus/projects/<slug>/`.
+key in `~/.atom/nucleus/projects/<slug>/`.
 
 ### `nucleus add`
 
@@ -88,7 +88,7 @@ nucleus search "..." --limit 10
 
 ### `nucleus sync`
 
-Push and pull `~/.nucleus` to/from the configured GitHub remote.
+Push and pull `~/.atom/nucleus` to/from the configured GitHub remote.
 Wraps `git add -A && git commit && git pull --rebase && git push`.
 
 ```
@@ -113,7 +113,7 @@ nucleus promote 01HXY... --applies-to web api
 
 ## Configuration
 
-Lives at `~/.nucleus/config.json`:
+Lives at `~/.atom/nucleus/config.json`:
 
 ```json
 {
@@ -137,7 +137,7 @@ globally enabled.
 ## Storage
 
 ```
-~/.nucleus/
+~/.atom/nucleus/
 ├── config.json
 └── projects/
     └── <slug>/
@@ -171,7 +171,7 @@ current.
 
 | Var | Purpose |
 |---|---|
-| `NUCLEUS_HOME` | Override `~/.nucleus` location. Useful for tests. |
+| `NUCLEUS_HOME` | Override `~/.atom/nucleus` location. Useful for tests. |
 | `EDITOR` / `VISUAL` | Used by `nucleus promote`. |
 | `NUCLEUS_SESSION_ID` | Optional. If set, `nucleus add` uses it for `session_id`. |
 
@@ -187,15 +187,21 @@ session boundaries.
 ```
 session
   ↓ (Claude or you call nucleus add)
-~/.nucleus (raw, project-tagged)
+~/.atom/nucleus/projects/<slug>/learnings.jsonl  (raw, low bar)
   ↓ (passes generalization test; nucleus promote <id>)
-atom/learnings/<type>/<slug>.md (curated, lives in atom repo)
-  ↓ (refined into prose; manual)
-atom/docs/LESSONS_LEARNED.md (curated essay-form lessons)
+~/.atom/learnings/<type>/<key>.md  (your local playbook)
+  ↓ (atom-setup copies into every new project, filtered by stack)
+<new-project>/learnings/<type>/<key>.md
 ```
 
-The first arrow is automated. The second is human-in-the-loop. The
-third is rare and intentional.
+The first arrow is automated when you're in `claude-managed` mode.
+The second is human-in-the-loop — `nucleus promote` opens `$EDITOR`
+so you can refine before saving. The third runs every time you
+bootstrap a project from atom.
+
+`learnings/` content is yours alone. nucleus and learnings both stay
+on your machine; optional sync is to *your own* private GitHub repos,
+not anyone else's.
 
 ## License
 

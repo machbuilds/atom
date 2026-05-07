@@ -147,11 +147,15 @@ non-obvious WHY (the constraint, the surprise, the past incident).
 
 The project's CLIs and conventions for AI tools.
 
-### nucleus — cross-project learning store
+### nucleus — the user's memory of every session
 
-This project has nucleus available. Run `nucleus --help` for the full
-CLI. Common subcommands: `nucleus search`, `nucleus add`, `nucleus slug`,
-`nucleus promote`, `nucleus sync`.
+`nucleus` is the user's cross-project memory: raw, project-tagged
+captures from every coding session. Lives at `~/.atom/nucleus/` on
+the user's machine. 100% theirs.
+
+Common subcommands: `nucleus search`, `nucleus add`, `nucleus slug`,
+`nucleus promote`, `nucleus sync`. Run `nucleus --help` for the full
+CLI.
 
 **When to search nucleus:**
 
@@ -174,13 +178,13 @@ Before non-obvious decisions, search for prior context:
 
 **When to add to nucleus:**
 
-The capture mode is in `~/.nucleus/config.json`. Three modes:
+The capture mode is in `~/.atom/nucleus/config.json`. Three modes:
 
 | Mode | AI behavior |
 |---|---|
-| `claude-managed` (default) | Capture at natural session boundaries: end of feature, after a commit, on `/clear`. Apply the generalization test for each candidate. |
+| `claude-managed` (default) | Capture at natural session boundaries: end of feature, after a commit, on `/clear`. |
 | `manual` | Surface candidates to the user ("Worth capturing? — `<one-line>`") but do not call `nucleus add`. The user runs it. |
-| `auto-timer` | A background process drains a session log periodically. Append to `~/.nucleus/sessions/<session>.log` instead of calling `nucleus add` directly. |
+| `auto-timer` | A background process drains a session log periodically. Append to `~/.atom/nucleus/sessions/<session>.log` instead of calling `nucleus add` directly. |
 
 Capture command:
 
@@ -193,37 +197,84 @@ nucleus add "<insight>" \
   --files path/to/file
 ```
 
-**The generalization test (the one filter that matters):**
-
-Would this teach something that applies beyond the current project?
-If it references a project-specific endpoint, table, or vendor quirk,
-**don't capture**. The fix is in the code; the lesson is not.
-
-Pass: "Cache the refresh promise across concurrent calls."
-Fail: "Update the `/api/v1/users/me` route to return 304." (project-specific)
+The bar to capture is **low** — anything that might be useful later.
+nucleus is the journal; refinement happens at promotion time.
 
 **What not to do:**
 
 - Do not call `nucleus add` after every Bash command. Capture is for
   durable lessons, not noise.
-- Do not capture project-specific facts as universal learnings.
 - Do not write hedged or vague insights. "Be careful with auth" is
   not a learning. "Cache the in-flight refresh promise" is.
 - Do not invoke `nucleus sync` automatically. Sync is on the user's
   clock (on `/clear`, end of day, or explicit request).
 
-**Promotion (rare):**
+### learnings — the user's playbook of patterns to carry forward
 
-When a learning has settled and applies broadly, graduate it from
-nucleus to atom's `learnings/`:
+`learnings` is the user's curated playbook: generalized patterns
+they've decided are worth carrying into every future project. Lives
+at `~/.atom/learnings/` on the user's machine. **Auto-copied into
+every new project they bootstrap from atom**, filtered by the new
+project's stack tags.
+
+100% theirs. Same privacy model as nucleus. Optional sync to their
+own private GitHub repo (separate from the nucleus sync repo).
+
+Common subcommands: `learnings list`, `learnings show <key>`,
+`learnings sync`, `learnings init`. Run `learnings --help` for the
+full CLI.
+
+**Promotion is the bridge from nucleus → learnings:**
+
+When a nucleus entry has settled and applies beyond the current
+project, graduate it:
 
 ```
 nucleus promote <id>
 ```
 
-This generates a draft `learnings/<type>/<slug>.md` and opens
-`$EDITOR`. Only run from inside the atom repo (or a fork intended for
-PR back to atom).
+This generates a draft at `~/.atom/learnings/<type>/<key>.md`,
+opens `$EDITOR` for the user to refine, and they keep it forever.
+
+**The generalization test (the only filter that matters at promotion):**
+
+Would this teach something that applies beyond the current project?
+If the lesson references a project-specific endpoint, table, vendor
+quirk, or proprietary detail, **don't promote**. The lesson stays in
+nucleus, where it's still searchable.
+
+Pass: "Cache the refresh promise across concurrent calls."
+Fail: "Update the `/api/v1/users/me` route to return 304." (project-specific)
+
+**Suggesting promotion (Claude-specific):**
+
+After several captures from a session, before `/clear` or end of
+work, scan for promotion candidates and surface them: *"This one
+looks broadly useful. Promote to your playbook? — `nucleus promote
+<id>`."* Don't auto-promote without the user's explicit yes.
+
+**What not to do:**
+
+- Do not run `nucleus promote` automatically. The user decides what
+  enters their playbook.
+- Do not push project-specific content into learnings, even if the
+  user asks. Suggest leaving it in nucleus and refining the prose.
+- Do not invoke `learnings sync` automatically. Same as nucleus —
+  sync is on the user's clock.
+
+### Setup nudge
+
+If the user has not yet run `nucleus init` AND `learnings init`
+(check for `~/.atom/nucleus/config.json` and
+`~/.atom/learnings/config.json`), mention this once at the start
+of the first session in a new project:
+
+> "I notice you haven't initialized nucleus and learnings yet. Run
+> `nucleus init && learnings init` once on this machine — both are
+> optional but unlock the cross-project memory and playbook
+> propagation."
+
+Don't nag. Mention once, drop it.
 
 ### model-race — parallel AI model comparison via Git worktrees
 

@@ -1,18 +1,17 @@
 import { existsSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import color from 'picocolors';
 import { NUCLEUS_PROJECTS_DIR, learningsFile } from '../lib/paths.js';
+import { LEARNINGS_HOME, learningsTypeDir, learningsFilePath } from '../lib/promote-paths.js';
 import { readEntries } from '../lib/jsonl.js';
-import { isGitRepo } from '../lib/git.js';
 
 export function registerPromoteCommand(program) {
   program
     .command('promote <id>')
-    .description('Generate a learnings/<type>/<slug>.md draft from a nucleus entry; opens $EDITOR.')
-    .option('--target <dir>', 'project root that contains learnings/ (default: cwd)', process.cwd())
+    .description('Graduate a nucleus entry into your local learnings (~/.atom/learnings/<type>/<key>.md). Opens $EDITOR for refinement.')
     .option('--no-editor', 'do not open $EDITOR; just write the draft')
     .option('--applies-to <values...>', 'override default applies_to (default: [universal])')
+    .option('--target <dir>', '[advanced] override target root; default ~/.atom/learnings/')
     .action((id, opts) => {
       const entry = findEntry(id);
       if (!entry) {
@@ -20,12 +19,16 @@ export function registerPromoteCommand(program) {
         process.exit(1);
       }
 
-      const learningsRoot = join(opts.target, 'learnings');
-      const typeDir = join(learningsRoot, entry.type);
+      const root = opts.target || LEARNINGS_HOME;
+      const typeDir = opts.target
+        ? `${opts.target}/${entry.type}`
+        : learningsTypeDir(entry.type);
       mkdirSync(typeDir, { recursive: true });
 
       const slug = entry.key || autoSlug(entry.insight);
-      const filePath = join(typeDir, `${slug}.md`);
+      const filePath = opts.target
+        ? `${opts.target}/${entry.type}/${slug}.md`
+        : learningsFilePath(entry.type, slug);
 
       if (existsSync(filePath)) {
         console.error(`${filePath} already exists. Pick a different key or remove the existing file.`);
@@ -36,13 +39,10 @@ export function registerPromoteCommand(program) {
       writeFileSync(filePath, draft, 'utf8');
 
       console.log(`${color.green('✓')} Drafted ${color.cyan(filePath)}`);
+      console.log(color.dim('  This learning is yours. It will be copied into every new project you bootstrap from atom (filtered by stack tags).'));
 
       if (opts.editor) {
         openEditor(filePath);
-      }
-
-      if (isGitRepo(opts.target)) {
-        console.log(color.dim(`  Review and: git add ${filePath}`));
       }
     });
 }

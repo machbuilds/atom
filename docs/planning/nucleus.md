@@ -1,12 +1,17 @@
 # nucleus — build plan
 
-> Status: built (v0.1). Implementation: `bin/nucleus/`.
-> Skill: `scaffold/.claude/skills/nucleus/SKILL.md`.
-> Updated: 2026-05-04
+> Status: rebuilt (v0.1.1) — moved from `~/.nucleus/` to `~/.atom/nucleus/`.
+> Implementation: `bin/nucleus/`. Skill: `scaffold/.claude/skills/nucleus/SKILL.md`.
+> `nucleus promote` target moved from `<atom-repo>/learnings/` (v0.1) to
+> the user-owned `~/.atom/learnings/` (v0.1.1) — see `learnings.md`
+> for the architectural shift.
+> Migration is one-shot: nucleus detects `~/.nucleus/` on first run and
+> renames it to `~/.atom/nucleus/`.
+> Updated: 2026-05-06
 
 ## What it is
 
-Cross-project learning store. Lives at `~/.nucleus/` on the user's
+Cross-project learning store. Lives at `~/.atom/nucleus/` on the user's
 machine. Captures key learnings from coding sessions into JSONL,
 optionally synced to a private GitHub repo for cross-machine access.
 
@@ -34,9 +39,9 @@ atom for anyone who clones it.
 | Name | `nucleus` | Atom-themed; "the core knowledge of every project"; not generic like "brain" |
 | Independence | Zero GStack/GBrain dependency | Must travel with atom to people who clone it |
 | CLI structure | One command, subcommands | Modern pattern (git, gh, npm); discoverable via `nucleus --help` |
-| Storage | JSONL at `~/.nucleus/projects/<slug>/learnings.jsonl` | Git-diffable, grep-able, human-readable |
+| Storage | JSONL at `~/.atom/nucleus/projects/<slug>/learnings.jsonl` | Git-diffable, grep-able, human-readable |
 | Slug derivation | From git remote URL (`user/repo` → `user-repo`); cwd fallback | Stable across clones; `nucleus slug` exposes it |
-| Sync | Optional private GitHub repo | User opts in; `~/.nucleus` is itself a git repo |
+| Sync | Optional private GitHub repo | User opts in; `~/.atom/nucleus` is itself a git repo |
 | Capture mode | User picks at setup: claude-managed (default) / auto-timer / manual | Respects different working styles |
 | Schema fields | 12 (see below) | Covers identity, content, metadata, lineage |
 | Type enum (8) | architecture, pitfall, pattern, workflow, decision, bug-fix, performance, security | Covers what real projects produce |
@@ -56,7 +61,7 @@ Each entry is one line in `learnings.jsonl`:
   "project": "machbuilds-atom",
   "type": "architecture",
   "key": "nucleus-uses-jsonl-not-sqlite",
-  "insight": "Chose JSONL over SQLite for ~/.nucleus because git-diffable, grep-able, and human-readable. SQLite would be faster but kills the cross-project sync story.",
+  "insight": "Chose JSONL over SQLite for ~/.atom/nucleus because git-diffable, grep-able, and human-readable. SQLite would be faster but kills the cross-project sync story.",
   "confidence": "high",
   "source": "human",
   "files": ["bin/nucleus", "docs/planning/nucleus.md"],
@@ -86,7 +91,7 @@ Field rules:
 
 ## Capture modes
 
-Picked at `atom-setup` time, written to `~/.nucleus/config.json`.
+Picked at `atom-setup` time, written to `~/.atom/nucleus/config.json`.
 
 - **claude-managed** (default). Claude calls `nucleus add` at natural
   session boundaries (end of feature, after a commit, on `/clear`).
@@ -102,12 +107,12 @@ Picked at `atom-setup` time, written to `~/.nucleus/config.json`.
 
 Smart hybrid:
 
-1. Wizard asks "Sync `~/.nucleus` to GitHub for cross-machine access?"
+1. Wizard asks "Sync `~/.atom/nucleus` to GitHub for cross-machine access?"
 2. If yes: "Existing repo URL or create new?"
 3. For "create new":
    - If `gh` is detected and authenticated, create the repo
      immediately (default name `nucleus-<github-username>`, private,
-     single user). Wire `~/.nucleus` to it as origin.
+     single user). Wire `~/.atom/nucleus` to it as origin.
    - If `gh` is not available, show two options: install gh and
      re-run, or create the repo manually and paste the URL.
 4. If no, skip. User can run `nucleus init --setup-sync` later.

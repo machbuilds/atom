@@ -92,8 +92,8 @@ Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without wri
 | Feature | What it does |
 |---|---|
 | **`atom-setup`** | Interactive wizard (Node + clack). 4 modes: `--bare` / `--minimal` / default / `--full`. 10 sections cover project basics, stack, license, Docker tier, CI, git. Pre-flight detection, smart defaults, resumable state. |
-| **`nucleus`** | Cross-project learning store at `~/.nucleus`. Captures durable lessons mid-session; surfaces them in any future project. JSONL storage, optional GitHub sync, keyword + structured filter search. |
-| **`learnings/`** | Graduation layer for `nucleus` entries that prove generalizable. Files inherit into every bootstrapped project, filtered by stack tags. |
+| **`nucleus`** | Your **memory** — raw notes from every session, project-tagged, captured fast. Lives at `~/.atom/nucleus/`. JSONL storage, keyword + structured filter search. Optionally synced to your own private GitHub repo. |
+| **`learnings`** | Your **playbook** — patterns you've decided to carry forward. Lives at `~/.atom/learnings/`. Auto-copied into every new project you bootstrap (filtered by stack tags). Optionally synced to your own private GitHub repo. |
 | **`model-race`** | Parallel AI model comparison via Git worktrees. Race the same spec through claude/codex/gemini, score with weighted metrics, optional LLM judge, merge the winner. |
 | **Docker, optional** | Four tiers: None / Dockerfile / + compose / + devcontainer. Smart-defaulted from your stack. Production-grade out of the box (multi-stage, non-root, healthcheck, multi-arch CI). |
 | **Multi-AI tool support** | `AGENTS.md` is the canonical spec; `CLAUDE.md` / `GEMINI.md` / `.cursorrules` / `.github/copilot-instructions.md` are forwarders. Claude, Codex CLI, Gemini CLI, Cursor, and Copilot all read the same instructions. |
@@ -104,32 +104,41 @@ Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without wri
 
 ## What is nucleus?
 
-**nucleus is atom's cross-project learning store.** It's a CLI (`nucleus add`, `nucleus search`, `nucleus promote`, `nucleus sync`) backed by a JSONL file at `~/.nucleus/projects/<slug>/learnings.jsonl` on your machine. You capture durable lessons mid-session — pitfalls, patterns, architecture decisions with rationale — and they surface in any future session, in any project, with `nucleus search`.
+atom ships with two layers of cross-project knowledge. They're easy to confuse, so the distinction matters:
 
-Think of it as **the brain of your project work that travels across every clone.** Every atom has a nucleus at its center holding its identity; `nucleus` does the same for your projects: the core knowledge that makes each project what it is.
+| | **nucleus** | **learnings** |
+|---|---|---|
+| What it is | Your **memory** of every session | Your **playbook** of patterns to carry forward |
+| Bar to capture | Low — "worth noting" | High — "worth carrying into every future project" |
+| Granularity | Raw, project-tagged | Curated, generalized, per-type |
+| Lives where | `~/.atom/nucleus/` | `~/.atom/learnings/` |
+| Auto-copied to new projects? | No | Yes (filtered by stack tags) |
+| Optional sync | Your own private GitHub repo | Your own private GitHub repo (separate from nucleus) |
+
+**Both are 100% yours.** Nothing leaves your machine without your explicit action. atom is the system; the content is yours.
 
 ### Why it exists
 
 Code can be rewritten. The lessons you learned writing it are harder to recover. They sit in your head, get half-remembered, and quietly disappear when you start the next project. Most coding sessions teach you something — a pitfall, a pattern, an architecture decision with rationale. Without a capture system, that learning evaporates the moment the session ends.
 
-`nucleus` catches those lessons mid-session and lets future sessions, in any project, benefit from them. Together with atom's structure, you get more than a starter template: code you can rewrite, plus knowledge you can't.
+`nucleus` catches those lessons mid-session, low bar, project-tagged. `learnings` is the curated subset you've decided to carry forward — auto-copied into every new project you bootstrap. Together they give you code you can rewrite **plus knowledge you can't**.
 
 ### The flow
 
 ```
        session
           │
-          ▼  nucleus add  (raw, project-tagged)
-   ~/.nucleus/projects/<slug>/learnings.jsonl
+          ▼  nucleus add  (raw, project-tagged, low bar)
+   ~/.atom/nucleus/projects/<slug>/learnings.jsonl
           │
           ▼  nucleus promote <id>  (passes generalization test)
-   atom/learnings/<type>/<slug>.md  (curated, ships to new projects)
+   ~/.atom/learnings/<type>/<key>.md  (your local playbook)
           │
-          ▼  refine into prose
-   atom/docs/LESSONS_LEARNED.md  (essay form)
+          ▼  atom-setup new project  (filtered by stack)
+   <new-project>/learnings/<type>/<key>.md  (carried forward)
 ```
 
-The first arrow is automated when Claude is your AI (claude-managed capture mode is the default). The second is human-in-the-loop — `nucleus promote` opens `$EDITOR` so you can refine the draft before it lands. The third is rare and intentional.
+The first arrow is automated when Claude is your AI (`claude-managed` capture mode is the default). The second is human-in-the-loop — `nucleus promote` opens `$EDITOR` so you can refine the draft before it lands. The third runs every time you bootstrap a project from atom — your playbook follows you.
 
 ### Capture modes
 
@@ -139,7 +148,7 @@ The first arrow is automated when Claude is your AI (claude-managed capture mode
 | **`auto-timer`** | A background process drains a session log every N minutes (5/15/30/60). For users who don't want to think about it. |
 | **`manual`** | Claude surfaces "worth capturing?" suggestions; you run `nucleus add` yourself. For users who want full control. |
 
-Picked at `atom-setup` time, configurable later via `~/.nucleus/config.json`.
+Picked at `atom-setup` time, configurable later via `~/.atom/nucleus/config.json`.
 
 ---
 
@@ -151,7 +160,7 @@ Picked at `atom-setup` time, configurable later via `~/.nucleus/config.json`.
 | Interactive wizard | yes (4 modes) | yes | yes | no |
 | Stack presets | yes | partial | yes | no |
 | AI-tool integration | yes (multi-tool via AGENTS.md) | no | no | no |
-| Cross-project learning store | yes (nucleus) | no | no | no |
+| Cross-project memory + playbook | yes (nucleus + learnings) | no | no | no |
 | Parallel-model workflow | yes (model-race) | no | no | no |
 | Constitution / principles | yes | no | no | no |
 | Production Docker defaults | yes (4 tiers, opt-in) | partial | no | no |
@@ -209,14 +218,14 @@ atom/
 │   ├── .claude/       Claude-specific skills (nucleus + agent skills)
 │   └── package.json   Baseline scripts
 │
-├── learnings/         Generalised, structured learnings (graduation layer)
-│
 ├── bin/               Global CLIs (install once per machine)
+│   ├── atom/          Top-level help dispatcher (`atom --help`)
 │   ├── atom-setup/    Interactive wizard
-│   ├── nucleus/       Cross-project learning store CLI
+│   ├── nucleus/       Your session memory CLI
+│   ├── learnings/     Your playbook CLI
 │   └── model-race/    Parallel AI model comparison via Git worktrees
 │
-├── scripts/           Maintenance scripts (e.g. copy-learnings.mjs)
+├── scripts/           Maintenance scripts (e.g. copy-learnings.mjs, test-atom-setup.sh)
 │
 └── extras/            Opt-in stack presets, copied based on user choice
     ├── docker/                Dockerfile, compose, devcontainer, CI
@@ -300,7 +309,7 @@ atom/
 atom evolves with every project that's shipped from it. The flow:
 
 1. **During the project**, capture learnings via `nucleus add` (or `docs/INBOX.md` if you prefer manual).
-2. **At the end of the project**, run `nucleus promote <id>` for entries that pass the generalization test. Files land in `atom/learnings/<type>/<slug>.md`.
+2. **At the end of the project**, run `nucleus promote <id>` for entries that pass the generalization test. Files land in your local playbook at `~/.atom/learnings/<type>/<slug>.md` and ride forward into every new project you bootstrap.
 3. **Periodically**, refine those into prose for `docs/LESSONS_LEARNED.md`.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the rules and the generalization test.

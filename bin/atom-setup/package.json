@@ -1,6 +1,6 @@
 {
   "name": "@atom/atom-setup",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Interactive wizard that transforms a cloned atom checkout into a personalized project.",
   "type": "module",
   "bin": {

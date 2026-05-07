@@ -48,7 +48,7 @@ If `./atom-setup` fails with `EACCES`, use `sudo ./atom-setup` or set up an npm 
 
 ### 2. nucleus init
 
-Run once on each machine to set up `~/.nucleus`:
+Run once on each machine to set up `~/.atom/nucleus`:
 
 ```bash
 nucleus init
@@ -65,7 +65,7 @@ nucleus add "test entry" --type pattern --confidence low
 nucleus search "test"
 ```
 
-The first command appends an entry; the second should find it. Once verified you can delete the test entry by editing `~/.nucleus/projects/<slug>/learnings.jsonl` directly.
+The first command appends an entry; the second should find it. Once verified you can delete the test entry by editing `~/.atom/nucleus/projects/<slug>/learnings.jsonl` directly.
 
 ### 3. AI CLI of your choice
 

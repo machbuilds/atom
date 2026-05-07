@@ -257,7 +257,9 @@ function printCheatsheet(state, preflight) {
   const tasks = [];
 
   if (a.nucleusEnabled) {
-    tasks.push(`${color.cyan('•')} Initialize nucleus on this machine: ${color.cyan('nucleus init')}`);
+    tasks.push(`${color.cyan('•')} Initialize nucleus (your session memory): ${color.cyan('nucleus init')}`);
+    tasks.push(`${color.cyan('•')} Initialize learnings (your local playbook): ${color.cyan('learnings init')}`);
+    tasks.push(`  ${color.dim('Both are 100% yours. Optional GitHub sync to your private repo.')}`);
   }
   if (a.mem0) {
     tasks.push(`${color.cyan('•')} Set up mem0 MCP: see ${color.cyan('docs/INSTALL.md')} (or wherever it lives in scaffold)`);
@@ -274,6 +276,8 @@ function printCheatsheet(state, preflight) {
   if (a.gitRemote && !a.gitPush) {
     tasks.push(`${color.cyan('•')} Push to your remote when ready: ${color.cyan(`git remote add origin ${a.gitRemote} && git push -u origin main`)}`);
   }
+
+  tasks.push(`${color.cyan('•')} See every atom command in one place: ${color.cyan('atom --help')}`);
 
   if (tasks.length > 0) {
     note(tasks.join('\n'), `What's next`);

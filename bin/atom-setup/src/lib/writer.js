@@ -5,6 +5,7 @@ import {
   existsSync, readdirSync, statSync, copyFileSync, mkdirSync,
   writeFileSync, rmSync, renameSync, readFileSync,
 } from 'node:fs';
+import { homedir } from 'node:os';
 import { join, dirname, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
@@ -12,6 +13,9 @@ import {
   STACK_TAGS, STACK_PRESET_DIR, DOCKER_TIER_FILES,
 } from './manifest.js';
 import { renderLicense } from './licenses.js';
+
+const ATOM_HOME = process.env.ATOM_HOME || join(homedir(), '.atom');
+const USER_LEARNINGS_DIR = process.env.ATOM_LEARNINGS_HOME || join(ATOM_HOME, 'learnings');
 
 export async function applyState(state, cwd, opts = {}) {
   const log = opts.log || (() => {});
@@ -36,8 +40,11 @@ export async function applyState(state, cwd, opts = {}) {
     copyDockerTier(root, answers.dockerTier, log, dryRun);
   }
 
-  // 5. Filter and copy learnings (from learnings/ source dir).
-  if (existsSync(join(root, 'learnings'))) {
+  // 5. Filter and copy learnings (from the user's local playbook at
+  //    ~/.atom/learnings/, NOT from anything in the atom repo).
+  //    No-op if the user has not yet promoted any learnings or hasn't
+  //    run `learnings init`.
+  if (existsSync(USER_LEARNINGS_DIR)) {
     copyLearnings(root, answers.stack, log, dryRun);
   }
 
@@ -96,13 +103,15 @@ function copyDockerTier(root, tier, log, dryRun) {
 }
 
 function copyLearnings(root, stack, log, dryRun) {
-  const src = join(root, 'learnings');
+  const src = USER_LEARNINGS_DIR;
   const tags = new Set(STACK_TAGS[stack] || ['universal']);
 
   function walk(dir) {
     for (const entry of readdirSync(dir)) {
       const p = join(dir, entry);
-      if (statSync(p).isDirectory()) {
+      let s;
+      try { s = statSync(p); } catch { continue; }
+      if (s.isDirectory()) {
         walk(p);
       } else if (entry.endsWith('.md') && entry !== 'README.md') {
         const rel = relative(src, p);
@@ -114,13 +123,12 @@ function copyLearnings(root, stack, log, dryRun) {
         if (!matches(appliesTo, tags)) continue;
 
         if (dryRun) {
-          log(`(dry-run) learning copy: ${rel}`);
+          log(`(dry-run) learning copy from playbook: ${rel}`);
           continue;
         }
-        if (dst === p) continue;
         mkdirSync(dirname(dst), { recursive: true });
         copyFileSync(p, dst);
-        log(`learning copy: ${rel}`);
+        log(`learning copy from playbook: ${rel}`);
       }
     }
   }

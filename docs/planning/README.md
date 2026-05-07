@@ -11,7 +11,7 @@ file before starting work on that feature.
 - [`atom-setup.md`](atom-setup.md). Interactive wizard. The first thing
   a user runs after cloning atom. Drives all per-project configuration.
 - [`nucleus.md`](nucleus.md). Cross-project learning store. Lives at
-  `~/.nucleus`. Captures session learnings; syncs to private GitHub.
+  `~/.atom/nucleus`. Captures session learnings; syncs to private GitHub.
 - [`learnings.md`](learnings.md). Graduation layer in `atom/learnings/`.
   Where generalized nucleus entries get baked into the template so every
   bootstrapped project inherits them.

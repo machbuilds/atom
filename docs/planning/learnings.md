@@ -1,17 +1,30 @@
 # learnings — build plan
 
-> Status: built (v0.1).
-> Implementation: `learnings/` directory, `docs/LEARNINGS_TAXONOMY.md`,
-> `scripts/copy-learnings.mjs`. Promotion via `nucleus promote`.
-> Updated: 2026-05-04
+> Status: rebuilt (v0.1.1) — now a user-owned local playbook, not a
+> maintainer-curated layer in the atom repo.
+> Implementation: `bin/learnings/` CLI, `~/.atom/learnings/` storage,
+> `scripts/copy-learnings.mjs` for bootstrap copy. Promotion via
+> `nucleus promote` (writes into the user's playbook).
+> Updated: 2026-05-06
+>
+> **v0.1 → v0.1.1 architectural shift**: previously, `learnings/` was
+> a directory in the atom repo where the maintainer curated lessons
+> shared with everyone who cloned atom. That conflated maintainer
+> wisdom with user data and confused the privacy model. v0.1.1 makes
+> learnings entirely the user's: their playbook, on their machine,
+> auto-copied into their new projects, optionally synced to *their*
+> own private GitHub repo. atom ships the system; the content is
+> theirs.
 
 ## What it is
 
-The graduation layer for nucleus entries. Path: `atom/learnings/`.
-One Markdown file per generalized learning, with YAML frontmatter.
+The user's local playbook of patterns to carry forward. Path:
+`~/.atom/learnings/<type>/<key>.md`. One Markdown file per
+generalized learning, with YAML frontmatter.
 
-Lives inside the atom repo itself. Every project bootstrapped from
-atom inherits the relevant subset of these files at clone time.
+Lives on the user's machine, not in the atom repo. Every project
+bootstrapped from atom inherits the relevant subset of the user's
+own learnings (filtered by stack tag).
 
 ## Why
 
@@ -28,7 +41,7 @@ project B. The graduation flow makes the value compound.
 ```
 session
   ↓ (Claude or user captures via nucleus add)
-nucleus (raw, project-tagged, lives in ~/.nucleus)
+nucleus (raw, project-tagged, lives in ~/.atom/nucleus)
   ↓ (passes generalization test; nucleus promote <id> in atom repo)
 learnings/<type>/<slug>.md (curated, lives in atom repo)
   ↓ (refined further into prose narrative; manual)
@@ -102,7 +115,7 @@ project based on the user's stack and category choices in §2.
 Algorithm:
 
 ```
-for each file in atom/learnings/<type>/*.md:
+for each file in ~/.atom/learnings/<type>/*.md:
   read frontmatter
   if "universal" in applies_to OR user's_stack_tags ∩ applies_to:
     copy file to <new-project>/learnings/<type>/<slug>.md

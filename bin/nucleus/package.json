@@ -1,6 +1,6 @@
 {
   "name": "@atom/nucleus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cross-project learning store. Captures session learnings into ~/.nucleus, syncs across machines via GitHub.",
   "type": "module",
   "bin": {

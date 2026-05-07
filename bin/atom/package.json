@@ -1,0 +1,16 @@
+{
+  "name": "@atom/atom",
+  "version": "0.1.1",
+  "description": "Top-level help dispatcher for atom's tooling. Lists every CLI in one place.",
+  "type": "module",
+  "bin": {
+    "atom": "bin/atom.js"
+  },
+  "main": "bin/atom.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "picocolors": "^1.1.1"
+  }
+}

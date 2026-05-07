@@ -1,13 +1,19 @@
 #!/usr/bin/env node
-// copy-learnings.mjs — copy filtered learnings from atom/learnings/ into a target project.
-// Used by atom-setup at clone time. Filters by `applies_to` against project stack tags.
+// copy-learnings.mjs — copy filtered learnings from the user's local
+// playbook (~/.atom/learnings/) into a target project. Used by
+// atom-setup at clone time. Filters by `applies_to` against the
+// project's stack tags.
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join, relative, dirname } from 'node:path';
 import { parseArgs } from 'node:util';
 
+const ATOM_HOME = process.env.ATOM_HOME || join(homedir(), '.atom');
+const DEFAULT_SOURCE = process.env.ATOM_LEARNINGS_HOME || join(ATOM_HOME, 'learnings');
+
 const HELP = `
-copy-learnings — filter and copy atom/learnings/ into a new project
+copy-learnings — filter and copy your ~/.atom/learnings into a project
 
 Usage:
   node scripts/copy-learnings.mjs --target <dir> --stack-tags <tag1,tag2,...> [options]
@@ -18,7 +24,8 @@ Required:
                           the always-ship learnings. Example: universal,web,api
 
 Options:
-  --source <dir>          Source learnings dir. Default: ./learnings (atom repo root).
+  --source <dir>          Source learnings dir. Default: ~/.atom/learnings/
+                          (your local playbook, populated by 'nucleus promote').
   --dry-run               Show what would be copied without writing.
   --force                 Overwrite files that already exist in target.
   -h, --help              Show this help.
@@ -32,7 +39,7 @@ const { values } = parseArgs({
   options: {
     target: { type: 'string' },
     'stack-tags': { type: 'string' },
-    source: { type: 'string', default: 'learnings' },
+    source: { type: 'string', default: DEFAULT_SOURCE },
     'dry-run': { type: 'boolean', default: false },
     force: { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },

@@ -6,6 +6,33 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 
+## [0.1.1] — 2026-05-06
+
+Architectural refactor of the nucleus + learnings story. **No new features**, but the conceptual model is now coherent and the storage layout is namespaced under `~/.atom/`.
+
+### Changed
+
+- **`learnings` is now user-owned, not maintainer-curated.** Previously, `learnings/` was a directory in the atom repo where the maintainer's curated wisdom lived; new projects inherited it at clone time. That conflated maintainer content with user data and confused the privacy story. Now `learnings` is the user's *own* playbook, lives at `~/.atom/learnings/` on their machine, and follows them across every new project they bootstrap. atom ships the system; the content is theirs alone. Optional sync to *their* private GitHub repo (separate from the nucleus sync repo).
+- **Storage moved from `~/.nucleus/` to `~/.atom/nucleus/`.** Namespace consistency with `~/.atom/learnings/` and any future per-machine atom state (config, cache, etc.). Migration is one-shot: `nucleus` detects `~/.nucleus/` on first run and renames it to `~/.atom/nucleus/`.
+- **`nucleus promote <id>`** now writes into `~/.atom/learnings/<type>/<key>.md` (the user's playbook) instead of the atom repo's `learnings/`.
+- **`scripts/copy-learnings.mjs`** sources from `~/.atom/learnings/` by default (was `./learnings`).
+- **`atom-setup` writer** copies learnings from the user's `~/.atom/learnings/` into the new project, filtered by stack tags. No-op when the user hasn't run `learnings init` or hasn't promoted anything yet.
+- **README, AGENTS.md, planning docs** rewritten to make the nucleus-vs-learnings distinction unmissable. Both layers framed as "100% yours."
+
+### Added
+
+- **`learnings` CLI** at `bin/learnings/` — `init`, `list`, `show`, `remove`, `sync`. Mirrors the nucleus CLI's shape. Promote target for `nucleus promote`.
+- **`atom` CLI** at `bin/atom/` — top-level help dispatcher. `atom --help` (or `atom`) prints the unified command table for every CLI in the atom system. No subcommand routing; pure discovery surface.
+- **Setup nudges** in the post-`atom-setup` cheatsheet and Claude nucleus skill: prompt the user to run `nucleus init && learnings init` once per machine.
+
+### Removed
+
+- **`atom/learnings/`** (the maintainer-curated directory) — removed from the repo. The system (taxonomy doc, copy script, promote flow) stays; the content is no longer atom's.
+
+### CLI count
+
+`./atom-setup` now installs **5 CLIs** globally: `atom`, `atom-setup`, `nucleus`, `learnings`, `model-race`.
+
 ## [0.1.0] — 2026-05-05
 
 First feature-complete release. atom is a project-starter template with cross-project memory, multi-tool AI support, and an opinionated dev workflow.
@@ -13,7 +40,7 @@ First feature-complete release. atom is a project-starter template with cross-pr
 ### Added
 
 - **`atom-setup`** — interactive wizard (Node + clack). Four modes: `--bare`, `--minimal`, default, `--full`. Ten sections cover project basics, stack, license, Docker tier, CI/CD, git. Pre-flight detection, smart defaults from environment, resumable state, dry-run, final confirmation screen.
-- **`nucleus`** — cross-project learning store CLI. Subcommands: `init`, `add`, `search`, `sync`, `promote`, `slug`. JSONL storage at `~/.nucleus/projects/<slug>/`, optional GitHub sync, keyword + structured filter search, three capture modes (claude-managed, auto-timer, manual).
+- **`nucleus`** — cross-project learning store CLI. Subcommands: `init`, `add`, `search`, `sync`, `promote`, `slug`. JSONL storage at `~/.atom/nucleus/projects/<slug>/`, optional GitHub sync, keyword + structured filter search, three capture modes (claude-managed, auto-timer, manual).
 - **`learnings/`** — graduation layer for nucleus entries that pass the generalisation test. Files inherit into bootstrapped projects via `scripts/copy-learnings.mjs`, filtered by stack tags from `docs/LEARNINGS_TAXONOMY.md`.
 - **`model-race`** — parallel AI model comparison via Git worktrees. Subcommands: `start`, `status`, `spec`, `launch`, `score`, `judge`, `merge`, `abort`. Weighted scorecard (pass-fail and numeric-min metrics), opt-in LLM judge, configurable per-project via `model-race.config.json`.
 - **Docker** — four optional tiers in `extras/docker/`: None, Dockerfile only, + compose, + devcontainer. Smart-defaulted from stack and deploy target. Production-grade defaults: multi-stage build, non-root user, healthcheck, pinned base image, BuildKit cache mounts, multi-arch CI workflow.
@@ -30,5 +57,6 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/machbuilds/atom/releases/tag/v0.1.1
 [0.1.0]: https://github.com/machbuilds/atom/releases/tag/v0.1.0
