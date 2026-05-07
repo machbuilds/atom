@@ -1,6 +1,6 @@
 {
   "name": "@atom/learnings",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Your local playbook of generalized patterns. Lives at ~/.atom/learnings, optionally synced to a private GitHub repo. Auto-copied into every new atom-bootstrapped project.",
   "type": "module",
   "bin": {

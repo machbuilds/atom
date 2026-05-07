@@ -8,9 +8,8 @@ Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 
 ### Added
 
-- **`VERSION`** at the repo root. Plain text, single line. The source of truth for "what version is atom on?". Polled via `https://raw.githubusercontent.com/machbuilds/atom/main/VERSION` by `atom upgrade`.
-- **`atom upgrade`** subcommand on the `atom` help dispatcher. Detects the install location (`$ATOM_INSTALL` env override → `~/.atom/atom/` → realpath walk-up from this script), reads the local `VERSION`, fetches upstream, and on a mismatch runs `git pull --ff-only` followed by `npm install` + `npm install -g .` for every CLI. Refuses to upgrade if the install dir's git tree is dirty. Network failure is silent and degrades to a no-op. `atom upgrade --check` polls without installing.
-- **`ATOM_VERSION_URL`** env override (testing affordance) — defaults to the `raw.githubusercontent.com` URL above; `data:` URLs are accepted for offline tests.
+- **`atom upgrade`** subcommand on the `atom` help dispatcher. Detects the install location (`$ATOM_INSTALL` env override → `~/.atom/atom/` → realpath walk-up from this script), reads the local `VERSION` (added in 0.1.3), fetches upstream, and on a mismatch runs `git pull --ff-only` followed by `npm install` + `npm install -g .` for every CLI. Refuses to upgrade if the install dir's git tree is dirty. Network failure is silent and degrades to a no-op. `atom upgrade --check` polls without installing.
+- **`ATOM_VERSION_URL`** env override (testing affordance) — defaults to the `raw.githubusercontent.com` URL; `data:` URLs are accepted for offline tests.
 - **`./atom-setup --reinstall`** flag on the bash wrapper. Forces re-install of every atom CLI globally even when they're already on PATH. Useful when a global is stale or pointing at an old clone. Stop-gap until `atom upgrade` is the daily refresh path; both flow through the same `npm install` + `npm install -g .` shape that landed in 0.1.2. The flag is consumed by the wrapper and not forwarded to the wizard.
 - **nucleus schema migration framework.** New `nucleus migrate` subcommand walks every `~/.atom/nucleus/projects/*/learnings.jsonl` and applies pending migrations from a versioned registry at `bin/nucleus/src/migrations/00X-*.js`. Each migration takes `{header, entries}` and returns `{header, entries}`; the runner writes back atomically (`.tmp` + rename) under the same `proper-lockfile` lock that `appendEntry` uses, so concurrent `nucleus add` cannot race. `--dry-run` previews; `--quiet` suppresses per-file lines. Auto-triggered lazily on `nucleus add` and `nucleus search`: O(1) per-file check (read first line, compare header version) — silent when up-to-date, prints a one-line "migrated N file(s)" notice when not.
 - **First migration: `001-add-header.js`.** Prepends `{"_atom_nucleus": true, "_schema": 1}` to legacy v0.1.x JSONL files lacking it. Entries are unchanged; the header gives future migrations an O(1) version-check path. `readEntries()` now skips header lines so existing search/promote/sync flows keep working before and after migration.
@@ -18,6 +17,18 @@ Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 ### Notes
 
 - Existing 0.1.x users won't have `atom upgrade` until they install v0.2 once manually (it's the verb that enables itself). After that, every future release is one command.
+
+## [0.1.3] — 2026-05-07
+
+Hotfix surfaced by an end-to-end isolated install test of `release/v0.2`. Existing 0.1.2 users in any working state are unaffected; the bug only bites a fresh `git clone + ./atom-setup` on a machine that doesn't already have `atom-setup` on PATH.
+
+### Fixed
+
+- **`./atom-setup` silently skipped installing `atom-setup` itself.** The bash wrapper's `find_global()` rebuilds PATH via `echo "$PATH" | tr ':' '\n' | grep -v ^$ATOM_DIR$ | tr '\n' ':'`. The final `tr` left a **trailing colon**, which bash interprets as cwd. When the wrapper is run from inside the source dir, cwd contains a file named `atom-setup` (the wrapper itself), so `command -v atom-setup` returned `./atom-setup` and the install loop took the "already installed, skipping" path. `find_global` now strips both empty PATH components and the trailing colon.
+
+### Added
+
+- **`VERSION`** at the repo root. Plain text, single line. Forward-compatible with the `atom upgrade` verb landing in v0.2 (the upgrade verb polls this file on `main` to decide whether a new release is available).
 
 ## [0.1.2] — 2026-05-07
 
@@ -78,7 +89,8 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/machbuilds/atom/releases/tag/v0.1.3
 [0.1.2]: https://github.com/machbuilds/atom/releases/tag/v0.1.2
 [0.1.1]: https://github.com/machbuilds/atom/releases/tag/v0.1.1
 [0.1.0]: https://github.com/machbuilds/atom/releases/tag/v0.1.0
