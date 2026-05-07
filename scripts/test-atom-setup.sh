@@ -111,7 +111,7 @@ section "Test 1: pre-flight detection runs and --version works"
 
 $SETUP --version > "$LOG_DIR/t1-version.log" 2>&1
 assert "1.1 atom-setup --version exits 0" test $? -eq 0
-assert_grep "1.2 prints 0.1.2" "0.1.2" "$LOG_DIR/t1-version.log"
+assert_grep "1.2 prints 0.1.3" "0.1.3" "$LOG_DIR/t1-version.log"
 
 $SETUP --help > "$LOG_DIR/t1-help.log" 2>&1
 assert_grep "1.3 --help mentions --bare" "\\-\\-bare" "$LOG_DIR/t1-help.log"

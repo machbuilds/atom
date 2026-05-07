@@ -6,6 +6,18 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 
+## [0.1.3] — 2026-05-07
+
+Hotfix surfaced by an end-to-end isolated install test of `release/v0.2`. Existing 0.1.2 users in any working state are unaffected; the bug only bites a fresh `git clone + ./atom-setup` on a machine that doesn't already have `atom-setup` on PATH.
+
+### Fixed
+
+- **`./atom-setup` silently skipped installing `atom-setup` itself.** The bash wrapper's `find_global()` rebuilds PATH via `echo "$PATH" | tr ':' '\n' | grep -v ^$ATOM_DIR$ | tr '\n' ':'`. The final `tr` left a **trailing colon**, which bash interprets as cwd. When the wrapper is run from inside the source dir, cwd contains a file named `atom-setup` (the wrapper itself), so `command -v atom-setup` returned `./atom-setup` and the install loop took the "already installed, skipping" path. `find_global` now strips both empty PATH components and the trailing colon.
+
+### Added
+
+- **`VERSION`** at the repo root. Plain text, single line. Forward-compatible with the `atom upgrade` verb landing in v0.2 (the upgrade verb polls this file on `main` to decide whether a new release is available).
+
 ## [0.1.2] — 2026-05-07
 
 Patch release. Single fix to the install path so a fresh `git clone + ./atom-setup` actually works.
@@ -65,7 +77,8 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/machbuilds/atom/releases/tag/v0.1.3
 [0.1.2]: https://github.com/machbuilds/atom/releases/tag/v0.1.2
 [0.1.1]: https://github.com/machbuilds/atom/releases/tag/v0.1.1
 [0.1.0]: https://github.com/machbuilds/atom/releases/tag/v0.1.0

@@ -43,9 +43,18 @@ CLIS=(atom atom-setup nucleus learnings model-race)
 # Find the GLOBAL atom-setup (skip cwd in PATH so we don't recurse into
 # this script). Used both for "already installed?" detection and for the
 # final exec.
+#
+# Two failure modes the cleanup handles:
+#  - $ATOM_DIR explicitly in PATH (filtered by `grep -v ^$ATOM_DIR$`)
+#  - empty PATH components (which bash treats as cwd) introduced when
+#    splitting/joining; if cwd happens to be $ATOM_DIR, that smuggles
+#    `./atom-setup` (this script) in as a "global" hit. Strip both empty
+#    lines and the trailing colon.
 find_global() {
   local name="$1"
-  PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "^$ATOM_DIR$" | tr '\n' ':') command -v "$name" 2>/dev/null
+  local cleaned
+  cleaned=$(echo "$PATH" | tr ':' '\n' | grep -v "^$ATOM_DIR$" | grep -v '^$' | tr '\n' ':' | sed 's/:$//')
+  PATH="$cleaned" command -v "$name" 2>/dev/null
 }
 
 # ─── install CLIs (only what's missing) ─────────────────────────────
