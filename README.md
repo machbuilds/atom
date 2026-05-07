@@ -55,19 +55,20 @@ Platform: macOS, Linux. Windows users need Git Bash, WSL, or similar for the she
 ```bash
 git clone https://github.com/machbuilds/atom.git my-project
 cd my-project
-./install.sh         # one-time per machine
-atom-setup
+./atom-setup
 ```
 
-`./install.sh` installs atom's three CLIs (`atom-setup`, `nucleus`, `model-race`) globally. It's a **one-time-per-machine** step — skip it on future clones.
+That's it. `./atom-setup` installs atom's three CLIs globally (one-time per machine, only if not already installed) and then launches the interactive wizard.
 
-`atom-setup` is an interactive wizard. It walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
+`atom-setup` walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
+
+After the first run, `atom-setup`, `nucleus`, and `model-race` are on your `PATH` globally — future clones can drop the `./` and just run `atom-setup`.
 
 > [!TIP]
-> Want zero questions? Run `atom-setup --bare` and you're done in under 5 seconds.
+> Want zero questions? Run `./atom-setup --bare` and you're done in under 5 seconds. All flags pass through (`--minimal`, `--full`, `--dry-run`, `--resume`, etc.).
 
 > [!NOTE]
-> If `./install.sh` errors with `EACCES`, you need to either prefix the command with `sudo` or [set up an npm prefix that doesn't need sudo](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). The installer points you at this if it fails.
+> If the install errors with `EACCES`, you need to either prefix the command with `sudo` or [set up an npm prefix that doesn't need sudo](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). The installer points you at this if it fails.
 
 ---
 

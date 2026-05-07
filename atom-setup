@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# atom-setup — one-command bootstrap.
+#
+# First-time use, from inside a freshly cloned atom directory:
+#   ./atom-setup
+#
+# Installs atom's three CLIs globally (if not already present), then
+# launches the interactive wizard to transform this directory into your
+# new project. Forwards any flags to the wizard, e.g.:
+#
+#   ./atom-setup --bare
+#   ./atom-setup --minimal
+#   ./atom-setup --full
+#
+# After the first run, the global `atom-setup` is on your PATH and
+# future clones can skip the `./` and just run `atom-setup`.
+
+set -e
+
+ATOM_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# ─── pre-flight ─────────────────────────────────────────────────────
+if ! command -v node > /dev/null 2>&1; then
+  echo "Error: node not found on PATH." >&2
+  echo "atom requires Node.js 18+. Install from https://nodejs.org and re-run." >&2
+  exit 1
+fi
+
+if ! command -v npm > /dev/null 2>&1; then
+  echo "Error: npm not found on PATH." >&2
+  echo "npm ships with Node.js. Reinstall Node from https://nodejs.org and re-run." >&2
+  exit 1
+fi
+
+NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
+if [ "$NODE_MAJOR" -lt 18 ]; then
+  echo "Error: Node $(node -v) is too old. atom requires Node 18 or newer." >&2
+  exit 1
+fi
+
+CLIS=(atom-setup nucleus model-race)
+
+# Find the GLOBAL atom-setup (skip cwd in PATH so we don't recurse into
+# this script). Used both for "already installed?" detection and for the
+# final exec.
+find_global() {
+  local name="$1"
+  PATH=$(echo "$PATH" | tr ':' '\n' | grep -v "^$ATOM_DIR$" | tr '\n' ':') command -v "$name" 2>/dev/null
+}
+
+# ─── install CLIs (only what's missing) ─────────────────────────────
+need_install=0
+for cli in "${CLIS[@]}"; do
+  if [ -z "$(find_global $cli)" ]; then
+    need_install=1
+    break
+  fi
+done
+
+if [ "$need_install" = "1" ]; then
+  echo ""
+  echo "Installing atom's CLIs globally (one-time per machine)..."
+  echo ""
+
+  for cli in "${CLIS[@]}"; do
+    if [ -n "$(find_global $cli)" ]; then
+      printf "  → %-12s already installed, skipping\n" "$cli"
+      continue
+    fi
+    printf "  → %-12s " "$cli"
+    if (cd "$ATOM_DIR/bin/$cli" && npm install -g . > /tmp/atom-install-$cli.log 2>&1); then
+      echo "ok"
+    else
+      echo "FAILED"
+      echo "" >&2
+      echo "npm install for $cli failed. Last 10 lines of output:" >&2
+      tail -10 /tmp/atom-install-$cli.log >&2
+      echo "" >&2
+      echo "Common cause: EACCES on global install. Either re-run with sudo," >&2
+      echo "or set up an npm prefix in your home dir:" >&2
+      echo "  https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally" >&2
+      exit 1
+    fi
+  done
+
+  # Re-check PATH after install (npm prefix may not be on PATH)
+  for cli in "${CLIS[@]}"; do
+    if [ -z "$(find_global $cli)" ]; then
+      echo "" >&2
+      echo "Error: '$cli' was installed but is not on your PATH." >&2
+      echo "Run 'npm config get prefix' and ensure that prefix's bin/ is in PATH." >&2
+      exit 1
+    fi
+  done
+
+  echo ""
+  echo "Installed. Launching wizard..."
+  echo ""
+fi
+
+# ─── launch the wizard, forwarding any flags ────────────────────────
+GLOBAL_ATOM_SETUP=$(find_global atom-setup)
+if [ -z "$GLOBAL_ATOM_SETUP" ]; then
+  echo "Error: atom-setup not found on PATH after install." >&2
+  exit 1
+fi
+
+exec "$GLOBAL_ATOM_SETUP" "$@"
