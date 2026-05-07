@@ -53,28 +53,28 @@ Platform: macOS, Linux. Windows users need Git Bash, WSL, or similar for the she
 ## Quick start
 
 ```bash
+# Clone atom into your new project name
 git clone https://github.com/machbuilds/atom.git my-project
 cd my-project
+
+# First time only — install atom's CLIs (one-time per machine)
+(cd bin/atom-setup && npm install -g .)
+(cd bin/nucleus    && npm install -g .)
+(cd bin/model-race && npm install -g .)
+
+# Launch the wizard
 atom-setup
 ```
+
+The three `npm install -g` lines are a **one-time-per-machine install**. After the first clone, `atom-setup`, `nucleus`, and `model-race` are on your `PATH` globally — skip those three lines on future projects and go straight to `atom-setup`.
 
 `atom-setup` is an interactive wizard. It walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
 
 > [!TIP]
 > Want zero questions? Run `atom-setup --bare` and you're done in under 5 seconds.
 
-### First time? Install atom's CLIs once
-
-> [!IMPORTANT]
-> atom ships three Node CLIs that go on your `PATH` once per machine. Run these from inside the cloned `atom` directory:
-
-```bash
-(cd bin/atom-setup && npm install -g .)
-(cd bin/nucleus    && npm install -g .)   # cross-project learning store
-(cd bin/model-race && npm install -g .)   # parallel AI model workflow
-```
-
-After that, `atom-setup`, `nucleus`, and `model-race` are available in any project. Requires Node 18+.
+> [!NOTE]
+> If `npm install -g` errors with `EACCES`, you need to either prefix with `sudo` or [set up a global npm prefix that doesn't need sudo](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). Both work.
 
 ---
 
