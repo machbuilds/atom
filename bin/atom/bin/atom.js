@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // atom — top-level help dispatcher.
 //
-// `atom` or `atom --help` prints the unified help table for atom's
-// tooling. Each tool has its own --help for detailed usage.
-//
-// `atom --version` prints this dispatcher's version. To see the version
-// of any specific tool, run `<tool> --version`.
+//   atom                      print the unified help table
+//   atom --help / -h          same
+//   atom --version / -V       version of this dispatcher
+//   atom upgrade              fetch a new release of atom
+//   atom upgrade --check      check for an update without installing
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -16,15 +16,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
 
 const args = process.argv.slice(2);
+const subcommand = args[0];
 
 if (args.includes('--version') || args.includes('-V')) {
   console.log(pkg.version);
   process.exit(0);
 }
 
+if (subcommand === 'upgrade') {
+  const { runUpgrade } = await import('../src/upgrade.js');
+  await runUpgrade(args.slice(1));
+  process.exit(0);
+}
+
 // Anything else (no args, --help, -h, unknown subcommand) prints the
-// help table. atom doesn't subcommand-route — each tool is invoked by
-// its own name. If we ever want to route, we hook it in here.
+// help table.
 
 const HELP = `
 ${color.cyan('atom')} — project-starter template with cross-project memory.
@@ -55,6 +61,10 @@ ${color.bold('Compare')} ${color.dim('— for high-stakes features')}
   ${color.cyan('model-race judge')}                              Opt-in LLM evaluation.
   ${color.cyan('model-race merge')} ${color.dim('<winner>')}                       Cherry-pick winner; clean losers.
   ${color.cyan('model-race abort')}                              Tear down the race.
+
+${color.bold('Maintain')}
+  ${color.cyan('atom upgrade')}                                  Fetch a new release of atom and re-install CLIs.
+  ${color.cyan('atom upgrade --check')}                          Check for an update without installing.
 
 ${color.bold('Help')}
   ${color.cyan('atom')} ${color.dim('or')} ${color.cyan('atom --help')}                          This screen.
