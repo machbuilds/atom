@@ -68,12 +68,22 @@ if [ "$need_install" = "1" ]; then
       continue
     fi
     printf "  → %-12s " "$cli"
-    if (cd "$ATOM_DIR/bin/$cli" && npm install -g . > /tmp/atom-install-$cli.log 2>&1); then
+    # First populate the source's node_modules so the global install can
+    # resolve deps (`npm install -g .` alone does not pull deps reliably
+    # on a fresh clone — symptoms: ERR_MODULE_NOT_FOUND for commander, etc.).
+    if ! (cd "$ATOM_DIR/bin/$cli" && npm install > /tmp/atom-install-$cli.log 2>&1); then
+      echo "FAILED"
+      echo "" >&2
+      echo "npm install (deps) for $cli failed. Last 10 lines of output:" >&2
+      tail -10 /tmp/atom-install-$cli.log >&2
+      exit 1
+    fi
+    if (cd "$ATOM_DIR/bin/$cli" && npm install -g . >> /tmp/atom-install-$cli.log 2>&1); then
       echo "ok"
     else
       echo "FAILED"
       echo "" >&2
-      echo "npm install for $cli failed. Last 10 lines of output:" >&2
+      echo "npm install -g for $cli failed. Last 10 lines of output:" >&2
       tail -10 /tmp/atom-install-$cli.log >&2
       echo "" >&2
       echo "Common cause: EACCES on global install. Either re-run with sudo," >&2

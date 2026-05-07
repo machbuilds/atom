@@ -6,6 +6,14 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 
+## [0.1.2] — 2026-05-07
+
+Patch release. Single fix to the install path so a fresh `git clone + ./atom-setup` actually works.
+
+### Fixed
+
+- **`./atom-setup` install crash on fresh clones.** The bash wrapper ran `npm install -g .` in each `bin/<cli>/` without first running `npm install` (no `-g`) to populate the source's `node_modules/`. Result: the global install "succeeded" but invoking any installed CLI immediately crashed with `ERR_MODULE_NOT_FOUND` for `commander` (and other ESM deps) — Node was resolving imports against the source dir's missing `node_modules/`. Wrapper now runs `npm install` for each CLI before the global install. Existing users on `0.1.1` who already have the CLIs working are unaffected; the bug only bites a true fresh clone.
+
 ## [0.1.1] — 2026-05-06
 
 Architectural refactor of the nucleus + learnings story. **No new features**, but the conceptual model is now coherent and the storage layout is namespaced under `~/.atom/`.
@@ -57,6 +65,7 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/machbuilds/atom/releases/tag/v0.1.2
 [0.1.1]: https://github.com/machbuilds/atom/releases/tag/v0.1.1
 [0.1.0]: https://github.com/machbuilds/atom/releases/tag/v0.1.0
