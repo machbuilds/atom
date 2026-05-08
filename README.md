@@ -17,7 +17,7 @@ A project-starter template with cross-project memory, multi-tool AI support, and
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00bcd4?style=for-the-badge)](LICENSE)
 [![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![Build: v0.1](https://img.shields.io/badge/build-v0.1%20feature%20complete-00bcd4?style=for-the-badge)](docs/planning/)
+[![Build: v0.2](https://img.shields.io/badge/build-v0.2%20in%20progress-00bcd4?style=for-the-badge)](docs/planning/)
 [![AI Tools](https://img.shields.io/badge/AI%20tools-Claude%20%C2%B7%20Codex%20%C2%B7%20Gemini%20%C2%B7%20Cursor%20%C2%B7%20Copilot-7c4dff?style=for-the-badge)](#tool-compatibility)
 
 </div>
@@ -58,11 +58,11 @@ cd my-project
 ./atom-setup
 ```
 
-That's it. `./atom-setup` installs atom's three CLIs globally (one-time per machine, only if not already installed) and then launches the interactive wizard.
+That's it. `./atom-setup` installs atom's CLIs globally (one-time per machine, only if not already installed) and then launches the interactive wizard.
 
-`atom-setup` walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out.
+`atom-setup` walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out. The Git section can create a GitHub repo via `gh` and push — no manual step needed.
 
-After the first run, `atom-setup`, `nucleus`, and `model-race` are on your `PATH` globally — future clones can drop the `./` and just run `atom-setup`.
+After the first run, `atom-setup`, `nucleus`, `learnings`, `model-race`, and `atom` are on your `PATH` globally — future clones can drop the `./` and just run `atom-setup`. To keep atom itself up to date, run `atom upgrade`.
 
 > [!TIP]
 > Want zero questions? Run `./atom-setup --bare` and you're done in under 5 seconds. All flags pass through (`--minimal`, `--full`, `--dry-run`, `--resume`, etc.).
@@ -83,7 +83,7 @@ Pick how much ceremony you want at clone time:
 | `atom-setup` | ~2 min | New users. All 10 sections with smart defaults you can press Enter through. |
 | `atom-setup --full` | ~5 min | Explicit control over every option. |
 
-Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without writing), and `--target <dir>` (operate on a different directory).
+Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without writing), `--reinstall` (force re-install all CLIs even if already on PATH), and `--target <dir>` (operate on a different directory).
 
 ---
 
@@ -91,13 +91,14 @@ Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without wri
 
 | Feature | What it does |
 |---|---|
-| **`atom-setup`** | Interactive wizard (Node + clack). 4 modes: `--bare` / `--minimal` / default / `--full`. 10 sections cover project basics, stack, license, Docker tier, CI, git. Pre-flight detection, smart defaults, resumable state. |
-| **`nucleus`** | Your **memory** — raw notes from every session, project-tagged, captured fast. Lives at `~/.atom/nucleus/`. JSONL storage, keyword + structured filter search. Optionally synced to your own private GitHub repo. |
+| **`atom-setup`** | Interactive wizard (Node + clack). 4 modes: `--bare` / `--minimal` / default / `--full`. 10 sections cover project basics, stack, license, Docker tier, CI, git. Pre-flight detection, smart defaults, resumable state. Git section creates a GitHub repo via `gh` and pushes — no manual step. |
+| **`atom upgrade`** | Keeps atom itself up to date. Detects your install, polls `VERSION` upstream, runs `git pull --ff-only` + re-installs all CLIs. `atom upgrade --check` polls without installing. |
+| **`nucleus`** | Your **memory** — raw notes from every session, project-tagged, captured fast. Lives at `~/.atom/nucleus/`. JSONL storage with versioned schema migrations, keyword + structured filter search. Optionally synced to your own private GitHub repo. |
 | **`learnings`** | Your **playbook** — patterns you've decided to carry forward. Lives at `~/.atom/learnings/`. Auto-copied into every new project you bootstrap (filtered by stack tags). Optionally synced to your own private GitHub repo. |
 | **`model-race`** | Parallel AI model comparison via Git worktrees. Race the same spec through claude/codex/gemini, score with weighted metrics, optional LLM judge, merge the winner. |
 | **Docker, optional** | Four tiers: None / Dockerfile / + compose / + devcontainer. Smart-defaulted from your stack. Production-grade out of the box (multi-stage, non-root, healthcheck, multi-arch CI). |
 | **Multi-AI tool support** | `AGENTS.md` is the canonical spec; `CLAUDE.md` / `GEMINI.md` / `.cursorrules` / `.github/copilot-instructions.md` are forwarders. Claude, Codex CLI, Gemini CLI, Cursor, and Copilot all read the same instructions. |
-| **Stack presets** | `extras/` ships opinionated setups per framework (Next.js + Railway today; more coming). Wizard copies the matching one. |
+| **Stack presets** | `extras/` ships opinionated setups per framework (Next.js + Railway today; Python/FastAPI, Swift, Rust, Go CLI, TypeScript library coming in v0.2). Wizard copies the matching one. |
 | **Workflow integrations** | Optional Spec Kit + Task Master, GSD skills. Each opt-in via the wizard. |
 
 ---
@@ -230,8 +231,13 @@ atom/
 └── extras/            Opt-in stack presets, copied based on user choice
     ├── docker/                Dockerfile, compose, devcontainer, CI
     ├── web/nextjs-railway/    Next.js + Railway preset (incl. Dockerfile)
-    ├── ai/                    (placeholder — future presets)
-    └── mobile/                (placeholder — future presets)
+    ├── web/python-fastapi/    Python + FastAPI preset (v0.2)
+    ├── web/swift-vapor/       Swift + Vapor preset (v0.2)
+    ├── web/rust-axum/         Rust + Axum preset (v0.2)
+    ├── cli/go-cobra/          Go CLI + Cobra preset (v0.2)
+    ├── lib/typescript-library/ TypeScript library starter (v0.2)
+    ├── ai/                    (placeholder — v0.3)
+    └── mobile/                (placeholder — v0.3)
 ```
 
 </details>
@@ -248,7 +254,7 @@ atom/
 7. **License** — MIT / Apache-2.0 / GPL-3.0 / Proprietary / None
 8. **CI/CD** — auto-deploy on push to main (only asked if deploy target concrete)
 9. **Constitution** — generate starter constitution after setup
-10. **Git** — fresh `git init`, optional remote URL
+10. **Git** — fresh `git init`, then: create a new GitHub repo via `gh` (with visibility choice + optional push) / add an existing remote / skip
 
 `--bare` skips all of these and uses sane defaults. `--minimal` asks only the essentials (1, 2, 3, 7, 10).
 
@@ -285,14 +291,20 @@ atom/
 ## Roadmap
 
 > [!TIP]
-> atom is **v0.1, feature-complete**. Everything in the [Features](#what-atom-gives-you) table works today. The roadmap below is what's coming next, not what's missing.
+> atom is actively developed. Everything in the [Features](#what-atom-gives-you) table works today. The roadmap below is what's shipping next.
 
-**v0.2 (next)**
-- Stack presets beyond Next.js: Python (FastAPI), Swift, Rust, Go CLI, library starters
-- Live `gh repo create` during the Git section (currently records intent, defers push)
+**v0.2 (in progress)**
+
+Shipped so far:
+- `atom upgrade` — keep atom up to date with one command
+- `./atom-setup --reinstall` flag — force re-install stale globals
+- `nucleus migrate` — versioned schema migrations for JSONL files, auto-triggered
+- Live `gh repo create` in wizard §10 — creates GitHub repo and pushes; non-fatal on failure
+
+Coming next in v0.2:
+- Stack presets: Python (FastAPI), Swift (Vapor), Rust (Axum), Go CLI (Cobra), TypeScript library
 - Constitution auto-generation via `speckit-constitution` integration
-- `model-race --auto` (parallel session orchestration across CLIs)
-- Semantic search in `nucleus` (`--semantic` flag, vector store)
+- `~/.atom/atom/` canonical install + `install.sh` curl one-liner
 
 **v1.0**
 - First public release. Polished docs, demo screencast, full stack-preset coverage.
