@@ -268,7 +268,7 @@ function printCheatsheet(state, preflight) {
     tasks.push(`${color.cyan('•')} Copy ${color.cyan('.env.example')} to ${color.cyan('.env.local')} and fill in values, then ${color.cyan('docker compose up')}`);
   }
   if (a.constitution) {
-    tasks.push(`${color.cyan('•')} Generate the constitution: open ${color.cyan('AGENTS.md')} and run \`speckit-constitution\` (or follow your AI tool's flow)`);
+    tasks.push(`${color.cyan('•')} Refine ${color.cyan('CONSTITUTION.md')} (atom scaffolded a v0.1.0 draft) — pick at most 5 principles, then run \`speckit-constitution\` in Claude Code as a verification pass`);
   }
   if (a.modelRace) {
     tasks.push(`${color.cyan('•')} Configure model-race: edit ${color.cyan('model-race.config.json')}`);

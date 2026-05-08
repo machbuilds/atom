@@ -13,6 +13,7 @@ import {
   STACK_TAGS, STACK_PRESET_DIR, DOCKER_TIER_FILES,
 } from './manifest.js';
 import { renderLicense } from './licenses.js';
+import { renderConstitution } from './constitution.js';
 
 const ATOM_HOME = process.env.ATOM_HOME || join(homedir(), '.atom');
 const USER_LEARNINGS_DIR = process.env.ATOM_LEARNINGS_HOME || join(ATOM_HOME, 'learnings');
@@ -56,6 +57,13 @@ export async function applyState(state, cwd, opts = {}) {
   // 6. Write LICENSE.
   if (answers.license && answers.license !== 'None') {
     writeLicense(root, answers, log, dryRun);
+  }
+
+  // 6b. Write CONSTITUTION.md if user opted in. Generated inline from
+  //     §1 (project basics) + §2 (stack & deploy) so the user lands on
+  //     a populated draft, not a TODO marker that gets forgotten.
+  if (answers.constitution) {
+    writeConstitution(root, answers, log, dryRun);
   }
 
   // 7. Remove atom source directories (scaffold/, bin/, etc.) now that
@@ -188,6 +196,17 @@ function copyLearnings(root, stack, log, dryRun) {
     }
   }
   walk(src);
+}
+
+function writeConstitution(root, answers, log, dryRun) {
+  const path = join(root, 'CONSTITUTION.md');
+  if (dryRun) {
+    log(`(dry-run) write CONSTITUTION.md (v0.1.0 draft, populated from answers)`);
+    return;
+  }
+  const text = renderConstitution(answers);
+  writeFileSync(path, text);
+  log(`wrote CONSTITUTION.md (v0.1.0 draft)`);
 }
 
 function writeLicense(root, answers, log, dryRun) {

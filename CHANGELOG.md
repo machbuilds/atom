@@ -6,6 +6,10 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 In progress — remaining v0.2 items. See `docs/planning/v0.2.md`.
 
+### Added
+
+- **Inline constitution generation in wizard §9.** When the user opts in, the writer now produces `<project>/CONSTITUTION.md` (a v0.1.0 draft) populated from §1 (project name, description, visibility, multi-agent y/n) and §2 (stack, deploy target). Replaces the previous deferred-TODO flow where the cheatsheet pointed users at `speckit-constitution` and most of them forgot. The draft follows `docs/HOW_TO_WRITE_CONSTITUTION.md`'s methodology: at-most-5 principles (placeholders with stack-specific hints in HTML comments), locked tech stack pinned to the chosen preset, agent ownership matrix (solo or multi-agent based on §1), phase-gate skeleton, semver policy, change log seed. Implementation: new `bin/atom-setup/src/lib/constitution.js` exporting `renderConstitution(answers)`; `writer.js` calls it after `writeLicense` when `answers.constitution === true`. Cheatsheet now points at the file ("Refine CONSTITUTION.md") instead of asking the user to run a second command. The `speckit-constitution` skill in Claude Code is still recommended as a downstream verification pass once the user has drafted real principles.
+
 ## [0.2.1] — 2026-05-09
 
 ### Added

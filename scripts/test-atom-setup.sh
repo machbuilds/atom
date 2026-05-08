@@ -400,6 +400,98 @@ assert_grep "12.6 package.json has dual ESM/CJS exports" "\"import\"" "$T/packag
 assert "12.7 seed learning copied (dual ESM/CJS)" test -f "$T/learnings/dual-esm-cjs-with-tsup.md"
 
 # =============================================================
+section "Test 13a: constitution generation when opted in"
+# =============================================================
+
+T13A=$SCRATCH/test-13a-constitution
+prepare "$T13A"
+cat > "$T13A/.atom-setup-state.json" <<'EOF'
+{
+  "version": 1,
+  "startedAt": "2026-05-09T00:00:00Z",
+  "completedSections": [
+    "project", "stack", "nucleus", "memory", "workflow",
+    "docker", "license", "cicd", "constitution", "git"
+  ],
+  "answers": {
+    "projectName": "constitutional",
+    "description": "A test project that opts into the constitution",
+    "visibility": "public",
+    "multiAgent": true,
+    "stack": "rust-axum",
+    "deployTarget": "fly",
+    "nucleusEnabled": false,
+    "mem0": false, "multica": false, "chromeDevtools": false,
+    "specKit": false, "gsd": false, "modelRace": false,
+    "dockerTier": "none",
+    "license": "MIT",
+    "author": "Constitution Tester",
+    "email": "ct@test.local",
+    "year": 2026,
+    "autoDeploy": false,
+    "constitution": true,
+    "gitInit": true,
+    "gitRemote": null,
+    "gitPush": false
+  }
+}
+EOF
+$SETUP --resume --target "$T13A" --yes > "$LOG_DIR/t13a-constitution.log" 2>&1
+
+assert "13a.1 CONSTITUTION.md at root" test -f "$T13A/CONSTITUTION.md"
+assert_grep "13a.2 project name in title" "constitutional" "$T13A/CONSTITUTION.md"
+assert_grep "13a.3 description in subtitle" "test project that opts" "$T13A/CONSTITUTION.md"
+assert_grep "13a.4 stack-specific runtime (Rust)" "Rust 1.85" "$T13A/CONSTITUTION.md"
+assert_grep "13a.5 stack-specific framework (Axum)" "Axum 0.7" "$T13A/CONSTITUTION.md"
+assert_grep "13a.6 deploy target labeled (Fly.io)" "Fly.io" "$T13A/CONSTITUTION.md"
+assert_grep "13a.7 multi-agent matrix has more than one row" "Backend\|Frontend" "$T13A/CONSTITUTION.md"
+assert_grep "13a.8 stack-specific principle hint (Rust)" "unwrap\|tracing" "$T13A/CONSTITUTION.md"
+assert_grep "13a.9 versioning policy section present" "v0.1.0\|version bump\|Major\|Minor" "$T13A/CONSTITUTION.md"
+assert_grep "13a.10 cheatsheet points at CONSTITUTION.md (not the old TODO)" \
+  "Refine CONSTITUTION.md\|atom scaffolded" "$LOG_DIR/t13a-constitution.log"
+
+# =============================================================
+section "Test 13b: no constitution when user said no"
+# =============================================================
+
+T13B=$SCRATCH/test-13b-no-constitution
+prepare "$T13B"
+cat > "$T13B/.atom-setup-state.json" <<'EOF'
+{
+  "version": 1,
+  "startedAt": "2026-05-09T00:00:00Z",
+  "completedSections": [
+    "project", "stack", "nucleus", "memory", "workflow",
+    "docker", "license", "cicd", "constitution", "git"
+  ],
+  "answers": {
+    "projectName": "no-constitution",
+    "description": "A test project that opts out",
+    "visibility": "private",
+    "multiAgent": false,
+    "stack": "ts-library",
+    "deployTarget": "none",
+    "nucleusEnabled": false,
+    "mem0": false, "multica": false, "chromeDevtools": false,
+    "specKit": false, "gsd": false, "modelRace": false,
+    "dockerTier": "none",
+    "license": "MIT",
+    "author": "Test User",
+    "email": "test@test.local",
+    "year": 2026,
+    "autoDeploy": false,
+    "constitution": false,
+    "gitInit": true,
+    "gitRemote": null,
+    "gitPush": false
+  }
+}
+EOF
+$SETUP --resume --target "$T13B" --yes > "$LOG_DIR/t13b-no-constitution.log" 2>&1
+
+assert "13b.1 no CONSTITUTION.md when constitution=false" test ! -f "$T13B/CONSTITUTION.md"
+
+# =============================================================
 section "Test 13: docker-tier copy skips files preset already provides"
 # =============================================================
 
