@@ -62,6 +62,18 @@ export async function applyState(state, cwd, opts = {}) {
     reinitGit(root, answers, log);
   }
 
+  // 9. Wire up the git remote based on §10's gitRemoteChoice.
+  //    - create-gh: spawn `gh repo create` and push
+  //    - existing:  add remote + optional push
+  //    - skip:      no-op
+  //    Failures here are logged and surfaced via the cheatsheet but
+  //    must NOT abort the rest of the apply step — files are already
+  //    on disk, the project is functionally ready, and the user can
+  //    retry the remote operation manually.
+  if (!dryRun && opts.gitInit !== false) {
+    setupGitRemote(root, answers, log);
+  }
+
   // nucleus init is intentionally NOT run here; nucleus is a global
   // CLI installed once on the user's machine. The cheatsheet prompts
   // the user to run `nucleus init` if they have not already.
@@ -175,6 +187,53 @@ function reinitGit(root, answers, log) {
   const email = answers.email || 'noreply@example.com';
   run('git', ['-c', `user.name=${author}`, '-c', `user.email=${email}`, 'commit', '-m', subject], root);
   log(`git: initial commit on main`);
+}
+
+function setupGitRemote(root, answers, log) {
+  const choice = answers.gitRemoteChoice;
+  if (!choice || choice === 'skip') return;
+
+  if (choice === 'create-gh') {
+    const user = answers.gitRemoteUser || 'me';
+    const name = answers.gitRemoteName || answers.projectName;
+    const visibility = answers.gitRemoteVisibility === 'public' ? '--public' : '--private';
+    const description = answers.description ? ['--description', answers.description] : [];
+    const args = ['repo', 'create', `${user}/${name}`, visibility, ...description, '--source', root];
+    if (answers.gitPush) args.push('--push');
+
+    const r = spawnSync('gh', args, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    if (r.status === 0) {
+      log(`gh: created ${user}/${name} (${answers.gitRemoteVisibility || 'private'})${answers.gitPush ? ' and pushed' : ''}`);
+      return;
+    }
+
+    // gh failed. Don't abort the wizard — the project is ready locally.
+    // Surface the exact retry command so the user can finish manually.
+    const stderr = (r.stderr?.toString() || '').trim().split('\n').slice(-3).join(' | ');
+    log(`gh repo create failed: ${stderr || `exit ${r.status}`}`);
+    log(`  retry manually: gh ${args.map(a => /\s/.test(a) ? `"${a}"` : a).join(' ')}`);
+    return;
+  }
+
+  if (choice === 'existing' && answers.gitRemote) {
+    const r = spawnSync('git', ['remote', 'add', 'origin', answers.gitRemote], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    if (r.status !== 0) {
+      log(`git remote add failed: ${(r.stderr?.toString() || '').trim()}`);
+      return;
+    }
+    log(`git: remote 'origin' → ${answers.gitRemote}`);
+
+    if (answers.gitPush) {
+      const p = spawnSync('git', ['push', '-u', 'origin', 'main'], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+      if (p.status === 0) {
+        log('git: pushed to origin/main');
+      } else {
+        const stderr = (p.stderr?.toString() || '').trim().split('\n').slice(-3).join(' | ');
+        log(`git push failed: ${stderr || `exit ${p.status}`}`);
+        log(`  retry manually: git push -u origin main`);
+      }
+    }
+  }
 }
 
 function walkAndCopy(srcDir, dstDir, log, dryRun, rootDst = dstDir) {

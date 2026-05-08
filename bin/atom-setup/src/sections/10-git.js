@@ -48,7 +48,24 @@ export async function run(state, ctx) {
       cancel('gh CLI not detected. Install gh and re-run, or pick another option.');
       return;
     }
-    state.answers.gitRemote = `gh:${ctx.defaults.githubUser || 'me'}/${state.answers.projectName}`;
+
+    const ghUser = ctx.defaults.githubUser || 'me';
+    const repoName = state.answers.projectName;
+
+    const visibility = await select({
+      message: 'Repo visibility',
+      options: [
+        { value: 'private', label: 'Private', hint: 'recommended default' },
+        { value: 'public',  label: 'Public' },
+      ],
+      initialValue: state.answers.gitRemoteVisibility || 'private',
+    });
+    if (isCancel(visibility)) return cancel('Cancelled.');
+
+    state.answers.gitRemote = `gh:${ghUser}/${repoName}`;
+    state.answers.gitRemoteUser = ghUser;
+    state.answers.gitRemoteName = repoName;
+    state.answers.gitRemoteVisibility = visibility;
   } else {
     state.answers.gitRemote = null;
   }
