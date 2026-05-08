@@ -10,6 +10,8 @@ filtering. Pick values from this list.
 
 ## Canonical values
 
+### Project-shape values (broad)
+
 | Value | Meaning | Example matches |
 |---|---|---|
 | `universal` | Applies to every kind of project | "Pin dependencies to caret-major" |
@@ -20,8 +22,23 @@ filtering. Pick values from this list.
 | `library` | Reusable packages (npm, pip, etc.) | "Ship dual ESM + CJS via package.json `exports` map" |
 | `ai` | LLM-driven apps, agents, RAG systems | "Cache embeddings by content hash, not by request id" |
 
-Most learnings are `[universal]`. Stack-specific values are the
-minority by design.
+### Language values (preset-bound)
+
+These exist for learnings that are genuinely language-specific and
+would be noise in projects of a different language. They were added
+in v0.2 alongside the per-language stack presets.
+
+| Value | Meaning | Example matches |
+|---|---|---|
+| `node` | Node.js runtime | "Use `npm pack --dry-run` before publish" |
+| `python` | Python runtime | "Pydantic v2 over v1 for new code" |
+| `rust` | Rust toolchain | "cargo-chef for Docker builds" |
+| `go` | Go toolchain | "Inject version via ldflags, not source" |
+| `swift` | Swift toolchain (server or iOS) | "Static-link the stdlib for Linux deploys" |
+
+Most learnings are `[universal]`. Project-shape and language-specific
+values are the minority by design — the bar to use one is "this is
+genuinely useless or wrong outside the named context."
 
 ## Wizard mapping (which projects get which learnings)
 
@@ -37,15 +54,20 @@ project.stack_tags ∩ learning.applies_to ≠ ∅
 
 | Wizard stack choice | Stack tags |
 |---|---|
-| Next.js | `[universal, web]` |
-| React (SPA) | `[universal, web]` |
+| Next.js + Railway | `[universal, web, node]` |
+| Python / FastAPI | `[universal, web, api, python]` |
+| Swift / Vapor | `[universal, web, api, swift]` |
+| Rust / Axum | `[universal, web, api, rust]` |
+| Go CLI (Cobra) | `[universal, cli, go]` |
+| TypeScript library | `[universal, library, node]` |
+| React (SPA) | `[universal, web, node]` |
 | Astro / static site | `[universal, web]` |
-| Python (FastAPI / Flask) | `[universal, api]` |
-| Node API (Express / Fastify) | `[universal, api]` |
-| Swift / iOS | `[universal, mobile]` |
+| Node API (Express / Fastify) | `[universal, web, api, node]` |
+| Python API (other) | `[universal, web, api, python]` |
+| Swift / iOS | `[universal, mobile, swift]` |
 | React Native / Expo | `[universal, mobile]` |
-| Go / Rust / Python CLI | `[universal, cli]` |
-| Library (npm / pip / cargo) | `[universal, library]` |
+| CLI (other) | `[universal, cli]` |
+| Library (other) | `[universal, library]` |
 | AI agent / LLM app | `[universal, ai]` |
 | Other / Decide later | `[universal]` |
 
@@ -83,11 +105,12 @@ broader one.
 
 ## What `applies_to` is not
 
-- **Not for runtime/language tags.** `node`, `python`, `swift`,
-  `typescript` go in the `tags:` field, not `applies_to`. A learning
-  about "Node EventEmitter memory leaks" is `applies_to: [universal]`
-  with `tags: [node, performance]`. Filtering by language at bootstrap
-  is overkill.
+- **Not for runtimes outside the canonical list.** `node`, `python`,
+  `rust`, `go`, `swift` are allowed (see "Language values" above).
+  Other runtimes (`ruby`, `java`, `kotlin`, `dotnet`) go in the
+  `tags:` field until a preset for them lands. Adding a new language
+  value follows the "Adding new values" rules — needs at least one
+  real preset and at least one real learning.
 - **Not for concern domains.** `auth`, `data`, `security`, `performance`
   go in `tags:`. They cross-cut categories; using them for filtering
   produces noise.

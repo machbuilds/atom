@@ -1,0 +1,36 @@
+# Rust + Axum .dockerignore
+
+# VCS
+.git
+.gitignore
+.github
+
+# Rust build artifacts (rebuilt during docker build)
+target
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.swp
+
+# Docker (avoid recursive context)
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+.devcontainer
+
+# atom planning artifacts
+docs/planning
+.atom-setup-state.json
+
+# Misc
+*.log
+README.md
+DEPLOY.md

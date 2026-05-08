@@ -6,6 +6,34 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 In progress — remaining v0.2 items. See `docs/planning/v0.2.md`.
 
+## [0.2.1] — 2026-05-09
+
+### Added
+
+- **Five new stack presets** under `extras/<category>/<preset>/`, raising the wizard's preset coverage from 1 to 6:
+  - **Python / FastAPI** (`extras/web/python-fastapi/`) — `pyproject.toml` pinned to Python 3.12 + FastAPI + Pydantic v2; `app/main.py` with `/healthz` and lifespan; multi-stage Dockerfile (builder venv → runtime, non-root, healthcheck); Railway as default deploy target.
+  - **Swift / Vapor** (`extras/web/swift-vapor/`) — `Package.swift` pinned to Vapor 4 + Swift 5.10; `Sources/App/configure.swift` binds `0.0.0.0:PORT`; multi-stage Dockerfile with static-Swift-stdlib build; Fly.io as default deploy target.
+  - **Rust / Axum** (`extras/web/rust-axum/`) — `Cargo.toml` pinned to Axum 0.7 + Tokio 1 + tracing; `src/main.rs` with `/healthz` and `EnvFilter` log setup; cargo-chef Dockerfile + distroless runtime; Fly.io as default.
+  - **Go CLI / Cobra** (`extras/cli/go-cobra/`) — `go.mod` pinned to Go 1.23 + Cobra 1.8; root + sample subcommand; `.goreleaser.yaml` for cross-platform release binaries; tag-push GitHub Action; no Docker (binaries distributed via GitHub Releases).
+  - **TypeScript library** (`extras/lib/typescript-library/`) — strict-mode `tsconfig.json`; `tsup.config.ts` for dual ESM + CJS + `.d.ts` output; `package.json` with `exports` map, `files` allowlist, `publishConfig.provenance: true`; vitest + npm-publish workflow with provenance.
+- **3 seeded learnings per preset** (15 total) with `applies_to:` matching the preset's stack tags. Each learning is a real best practice, not invented filler — e.g., "Use cargo-chef for Rust Docker builds", "Static-link the Swift stdlib for Linux deploys", "Bind to 0.0.0.0, not localhost, inside containers".
+- **Stack-specific Quick Start in the project README.** Each preset ships a `README.snippet.md` that the writer splices into `<root>/README.md` (replacing a `{{QUICK_START}}` placeholder), and `{{PROJECT_NAME}}` / `{{DESCRIPTION}}` are substituted from the wizard's answers. Before this, bootstrapped projects had no README; now they have one tuned to whatever stack was picked.
+- **Language values in `LEARNINGS_TAXONOMY.md`'s `applies_to` vocabulary** — `node`, `python`, `rust`, `go`, `swift`. Pre-v0.2 the taxonomy said language tags belong only in `tags:`; with per-language presets, language-level filtering became necessary so a Pydantic learning doesn't ship to a Rust project.
+
+### Fixed
+
+- **`<project>/learnings/` was being deleted after copy.** `manifest.js`'s `REMOVE_AFTER_PROMOTE` had `'learnings'` in it — a leftover from v0.1.0 when the repo carried a maintainer-curated `learnings/` directory. v0.1.1 removed that directory but the cleanup entry stayed, silently wiping every user playbook learning + every preset seed learning that landed in `<project>/learnings/`. Removed the entry; verified by new test assertions (`8.7`, `9.5`, `10.5`, `11.6`, `12.7`).
+- **Generic Docker tier no longer overwrites preset's stack-tuned Dockerfile.** Previously, picking `dockerTier = 'dockerfile'` after a stack with its own preset Dockerfile (now: any of the 4 web presets) would overwrite the stack-tuned file with the generic one from `extras/docker/`. `copyDockerTier` now skips destinations that already exist; the generic workflow file at `.github/workflows/docker.yml` still lands because the preset doesn't ship that.
+
+### Wizard plumbing
+
+- **Stack list expanded from 13 → 18 entries.** The 6 preset-mapped values are grouped at the top with `preset:` hints; non-preset stacks (React, Astro, Node API, etc.) are below with `(no preset)` hints so users can see at a glance which paths get opinionated scaffolding. Existing values stay for back-compat with older `.atom-setup-state.json` files.
+- **`STACK_PRESET_DIR` and `STACK_TAGS`** in `manifest.js` updated to map each new preset to its directory and tag set. `suggestDockerTier()` extended to return `'none'` for `go-cobra` and `ts-library` (CLI / library distributions don't ship Docker images).
+
+### Tests
+
+- 32 new assertions in `scripts/test-atom-setup.sh` covering: every preset's signature files at root, `/healthz` route presence in web presets, no Dockerfile in CLI / library presets, the docker-tier-skips-preset behavior, README placeholder substitution, README snippet splice + cleanup. Suite total: **92 / 92** passing.
+
 ## [0.2.0] — 2026-05-08
 
 ### Added
@@ -93,7 +121,8 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/machbuilds/atom/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/machbuilds/atom/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/machbuilds/atom/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/machbuilds/atom/releases/tag/v0.1.3
 [0.1.2]: https://github.com/machbuilds/atom/releases/tag/v0.1.2

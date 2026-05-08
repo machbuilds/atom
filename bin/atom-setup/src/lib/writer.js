@@ -40,6 +40,11 @@ export async function applyState(state, cwd, opts = {}) {
     copyDockerTier(root, answers.dockerTier, log, dryRun);
   }
 
+  // 4b. Render README — substitute placeholders, splice preset's
+  //     README.snippet.md into the Quick Start section, drop the
+  //     snippet file. No-op if scaffold's README didn't promote.
+  renderReadme(root, answers, log, dryRun);
+
   // 5. Filter and copy learnings (from the user's local playbook at
   //    ~/.atom/learnings/, NOT from anything in the atom repo).
   //    No-op if the user has not yet promoted any learnings or hasn't
@@ -94,6 +99,37 @@ function copyStackPreset(root, stack, log, dryRun) {
   walkAndCopy(presetDir, root, log, dryRun);
 }
 
+function renderReadme(root, answers, log, dryRun) {
+  const readme = join(root, 'README.md');
+  const snippet = join(root, 'README.snippet.md');
+  if (!existsSync(readme)) return;
+
+  if (dryRun) {
+    log(`(dry-run) render README (${existsSync(snippet) ? 'with preset snippet' : 'no preset snippet'})`);
+    return;
+  }
+
+  let body = readFileSync(readme, 'utf8');
+  const projectName = answers.projectName || 'project';
+  const description = answers.description || `${projectName} — scaffolded from atom.`;
+
+  let quickStart;
+  if (existsSync(snippet)) {
+    quickStart = readFileSync(snippet, 'utf8').trim();
+    rmSync(snippet, { force: true });
+  } else {
+    quickStart = '## Quick start\n\nFill this in once the project has a build/run command.';
+  }
+
+  body = body
+    .replace(/\{\{PROJECT_NAME\}\}/g, projectName)
+    .replace(/\{\{DESCRIPTION\}\}/g, description)
+    .replace(/\{\{QUICK_START\}\}/g, quickStart);
+
+  writeFileSync(readme, body);
+  log(`render README (${existsSync(snippet) ? 'with' : 'without'} preset snippet)`);
+}
+
 function copyDockerTier(root, tier, log, dryRun) {
   const dockerSrc = join(root, 'extras/docker');
   const files = DOCKER_TIER_FILES[tier];
@@ -102,6 +138,13 @@ function copyDockerTier(root, tier, log, dryRun) {
     const dst = join(root, rel);
     if (!existsSync(src)) {
       log(`docker file ${rel} not found at ${src}; skipping`);
+      continue;
+    }
+    // Stack presets ship their own stack-tuned Dockerfile + .dockerignore.
+    // Don't overwrite them with the generic versions — the preset's are
+    // already at the destination because copyStackPreset ran first.
+    if (existsSync(dst)) {
+      log(`docker copy: ${rel} (skipped — preset already provided it)`);
       continue;
     }
     if (dryRun) {

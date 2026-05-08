@@ -1,0 +1,41 @@
+# Swift + Vapor .dockerignore
+
+# VCS
+.git
+.gitignore
+.github
+
+# Swift build artifacts (rebuilt during docker build)
+.build
+.swiftpm
+Package.resolved
+DerivedData
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.swp
+*.xcodeproj
+*.xcworkspace
+
+# Docker (avoid recursive context)
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+.devcontainer
+
+# atom planning artifacts
+docs/planning
+.atom-setup-state.json
+
+# Misc
+*.log
+README.md
+DEPLOY.md

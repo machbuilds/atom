@@ -17,7 +17,7 @@ A project-starter template with cross-project memory, multi-tool AI support, and
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00bcd4?style=for-the-badge)](LICENSE)
 [![Node 18+](https://img.shields.io/badge/node-%E2%89%A518-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![Build: v0.2](https://img.shields.io/badge/build-v0.2%20in%20progress-00bcd4?style=for-the-badge)](docs/planning/)
+[![Build: v0.2.1](https://img.shields.io/badge/build-v0.2.1-00bcd4?style=for-the-badge)](docs/planning/)
 [![AI Tools](https://img.shields.io/badge/AI%20tools-Claude%20%C2%B7%20Codex%20%C2%B7%20Gemini%20%C2%B7%20Cursor%20%C2%B7%20Copilot-7c4dff?style=for-the-badge)](#tool-compatibility)
 
 </div>
@@ -98,7 +98,7 @@ Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without wri
 | **`model-race`** | Parallel AI model comparison via Git worktrees. Race the same spec through claude/codex/gemini, score with weighted metrics, optional LLM judge, merge the winner. |
 | **Docker, optional** | Four tiers: None / Dockerfile / + compose / + devcontainer. Smart-defaulted from your stack. Production-grade out of the box (multi-stage, non-root, healthcheck, multi-arch CI). |
 | **Multi-AI tool support** | `AGENTS.md` is the canonical spec; `CLAUDE.md` / `GEMINI.md` / `.cursorrules` / `.github/copilot-instructions.md` are forwarders. Claude, Codex CLI, Gemini CLI, Cursor, and Copilot all read the same instructions. |
-| **Stack presets** | `extras/` ships opinionated setups per framework (Next.js + Railway today; Python/FastAPI, Swift, Rust, Go CLI, TypeScript library coming in v0.2). Wizard copies the matching one. |
+| **Stack presets** | `extras/` ships 6 opinionated setups: **Next.js + Railway**, **Python / FastAPI**, **Swift / Vapor**, **Rust / Axum**, **Go CLI / Cobra**, **TypeScript library**. Each ships a manifest with pinned versions, a hello-world entry, a stack-tuned Dockerfile (web only), seed learnings, and a Quick Start spliced into the project README. |
 | **Workflow integrations** | Optional Spec Kit + Task Master, GSD skills. Each opt-in via the wizard. |
 
 ---
@@ -300,11 +300,12 @@ Shipped so far:
 - `./atom-setup --reinstall` flag — force re-install stale globals
 - `nucleus migrate` — versioned schema migrations for JSONL files, auto-triggered
 - Live `gh repo create` in wizard §10 — creates GitHub repo and pushes; non-fatal on failure
+- 5 new stack presets: Python/FastAPI, Swift/Vapor, Rust/Axum, Go CLI/Cobra, TypeScript library
 
 Coming next in v0.2:
-- Stack presets: Python (FastAPI), Swift (Vapor), Rust (Axum), Go CLI (Cobra), TypeScript library
 - Constitution auto-generation via `speckit-constitution` integration
 - `~/.atom/atom/` canonical install + `install.sh` curl one-liner
+- `bin/atom-update-check` + snooze (gstack pattern)
 
 **v1.0**
 - First public release. Polished docs, demo screencast, full stack-preset coverage.

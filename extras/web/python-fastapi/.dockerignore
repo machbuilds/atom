@@ -1,0 +1,49 @@
+# Python + FastAPI .dockerignore
+
+# VCS
+.git
+.gitignore
+.github
+
+# Python build / runtime artifacts
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+.tox
+.venv
+venv
+env
+build
+dist
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.swp
+
+# Docker (avoid recursive context)
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+.devcontainer
+
+# atom planning artifacts
+docs/planning
+.atom-setup-state.json
+
+# Misc
+*.log
+README.md
+DEPLOY.md

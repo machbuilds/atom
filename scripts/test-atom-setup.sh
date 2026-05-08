@@ -300,6 +300,129 @@ else
 fi
 
 # =============================================================
+# Stack preset smoke tests (one resume run per preset).
+# Each writes a state file pinning the preset, runs the wizard,
+# then asserts the preset's signature files landed at root.
+# =============================================================
+
+run_preset_test() {
+  local name="$1"      # e.g. "8: python-fastapi"
+  local id="$2"        # e.g. "python-fastapi"
+  local stack="$3"     # e.g. "python-fastapi"
+  local docker="$4"    # e.g. "dockerfile" or "none"
+  shift 4
+  # Remaining args are "label::test-expression" pairs handled below.
+
+  section "Test $name preset (--resume)"
+  local TDIR="$SCRATCH/test-$id"
+  prepare "$TDIR"
+  cat > "$TDIR/.atom-setup-state.json" <<EOF
+{
+  "version": 1,
+  "startedAt": "2026-05-08T00:00:00Z",
+  "completedSections": [
+    "project", "stack", "nucleus", "memory", "workflow",
+    "docker", "license", "cicd", "constitution", "git"
+  ],
+  "answers": {
+    "projectName": "preset-$id",
+    "description": "Preset smoke test",
+    "visibility": "public",
+    "multiAgent": false,
+    "stack": "$stack",
+    "deployTarget": "railway",
+    "nucleusEnabled": false,
+    "mem0": false, "multica": false, "chromeDevtools": false,
+    "specKit": false, "gsd": false, "modelRace": false,
+    "dockerTier": "$docker",
+    "license": "MIT",
+    "author": "Preset Tester",
+    "email": "preset@test.local",
+    "year": 2026,
+    "autoDeploy": false,
+    "constitution": false,
+    "gitInit": true,
+    "gitRemote": null,
+    "gitPush": false
+  }
+}
+EOF
+  $SETUP --resume --target "$TDIR" --yes > "$LOG_DIR/t-$id.log" 2>&1
+}
+
+run_preset_test "8: python-fastapi" "python-fastapi" "python-fastapi" "dockerfile"
+T="$SCRATCH/test-python-fastapi"
+assert "8.1 pyproject.toml at root" test -f "$T/pyproject.toml"
+assert "8.2 app/main.py at root" test -f "$T/app/main.py"
+assert "8.3 Dockerfile is python-tuned (preset, not generic)" grep -q "python:" "$T/Dockerfile"
+assert_grep "8.4 healthz route in app/main.py" "/healthz" "$T/app/main.py"
+assert "8.5 .env.example at root" test -f "$T/.env.example"
+assert "8.6 DEPLOY.md at root" test -f "$T/DEPLOY.md"
+assert "8.7 seed learning copied (pydantic-v2)" test -f "$T/learnings/pydantic-v2-over-v1.md"
+assert "8.8 README has project name (placeholder substituted)" \
+  grep -q "preset-python-fastapi" "$T/README.md"
+assert_grep "8.9 README has preset Quick Start (uvicorn)" "uvicorn" "$T/README.md"
+assert "8.10 README.snippet.md was consumed (deleted)" test ! -f "$T/README.snippet.md"
+
+run_preset_test "9: rust-axum" "rust-axum" "rust-axum" "dockerfile"
+T="$SCRATCH/test-rust-axum"
+assert "9.1 Cargo.toml at root" test -f "$T/Cargo.toml"
+assert "9.2 src/main.rs at root" test -f "$T/src/main.rs"
+assert "9.3 Dockerfile uses cargo-chef" grep -q "cargo-chef\|chef" "$T/Dockerfile"
+assert_grep "9.4 healthz route in main.rs" "/healthz" "$T/src/main.rs"
+assert "9.5 seed learning copied (cargo-chef)" test -f "$T/learnings/cargo-chef-for-docker.md"
+
+run_preset_test "10: swift-vapor" "swift-vapor" "swift-vapor" "dockerfile"
+T="$SCRATCH/test-swift-vapor"
+assert "10.1 Package.swift at root" test -f "$T/Package.swift"
+assert "10.2 Sources/App/configure.swift" test -f "$T/Sources/App/configure.swift"
+assert "10.3 Dockerfile is swift-tuned" grep -q "swift:" "$T/Dockerfile"
+assert_grep "10.4 healthz route in configure.swift" "healthz" "$T/Sources/App/configure.swift"
+assert "10.5 seed learning copied (static-link)" test -f "$T/learnings/static-link-on-linux.md"
+
+run_preset_test "11: go-cobra" "go-cobra" "go-cobra" "none"
+T="$SCRATCH/test-go-cobra"
+assert "11.1 go.mod at root" test -f "$T/go.mod"
+assert "11.2 main.go at root" test -f "$T/main.go"
+assert "11.3 cmd/root.go at root" test -f "$T/cmd/root.go"
+assert "11.4 .goreleaser.yaml at root" test -f "$T/.goreleaser.yaml"
+assert "11.5 no Dockerfile (go-cobra is none-tier)" test ! -f "$T/Dockerfile"
+assert "11.6 seed learning copied (goreleaser)" test -f "$T/learnings/goreleaser-for-distribution.md"
+
+run_preset_test "12: ts-library" "ts-library" "ts-library" "none"
+T="$SCRATCH/test-ts-library"
+assert "12.1 package.json at root" test -f "$T/package.json"
+assert "12.2 tsup.config.ts at root" test -f "$T/tsup.config.ts"
+assert "12.3 src/index.ts at root" test -f "$T/src/index.ts"
+assert "12.4 src/index.test.ts at root" test -f "$T/src/index.test.ts"
+assert "12.5 no Dockerfile (ts-library is none-tier)" test ! -f "$T/Dockerfile"
+assert_grep "12.6 package.json has dual ESM/CJS exports" "\"import\"" "$T/package.json"
+assert "12.7 seed learning copied (dual ESM/CJS)" test -f "$T/learnings/dual-esm-cjs-with-tsup.md"
+
+# =============================================================
+section "Test 13: docker-tier copy skips files preset already provides"
+# =============================================================
+
+# python-fastapi ships its own Dockerfile + .dockerignore. With docker
+# tier 'dockerfile', the writer must NOT overwrite them with the
+# generic extras/docker/ versions. Compare bytes against preset source.
+
+T13="$SCRATCH/test-python-fastapi"
+PRESET_DOCKERFILE="$ATOM/extras/web/python-fastapi/Dockerfile"
+if [ -f "$T13/Dockerfile" ] && [ -f "$PRESET_DOCKERFILE" ]; then
+  if cmp -s "$T13/Dockerfile" "$PRESET_DOCKERFILE"; then
+    PASS=$((PASS+1))
+    RESULTS+=("  PASS  13.1 python-fastapi Dockerfile is the preset's, not the generic")
+  else
+    FAIL=$((FAIL+1))
+    RESULTS+=("  FAIL  13.1 python-fastapi Dockerfile was overwritten by docker-tier copy")
+  fi
+fi
+# Workflow file IS unique to the docker tier; it should land.
+assert "13.2 docker.yml workflow added (preset didn't provide it)" \
+  test -f "$T13/.github/workflows/docker.yml"
+
+# =============================================================
 # Report
 # =============================================================
 
