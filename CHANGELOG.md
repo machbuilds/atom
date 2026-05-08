@@ -4,7 +4,9 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 ## [Unreleased]
 
-Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
+In progress — remaining v0.2 items. See `docs/planning/v0.2.md`.
+
+## [0.2.0] — 2026-05-08
 
 ### Added
 
@@ -17,7 +19,8 @@ Tracking work targeting v0.2. See `docs/planning/` for in-flight build plans.
 
 ### Notes
 
-- Existing 0.1.x users won't have `atom upgrade` until they install v0.2 once manually (it's the verb that enables itself). After that, every future release is one command.
+- Existing 0.1.x users won't have `atom upgrade` until they install v0.2.0 once manually (it's the verb that enables itself). After that, every future release is one command.
+- v0.2 is being shipped incrementally; remaining items (stack presets, speckit-constitution, distribution overhaul) will land as patch releases on the v0.2 line.
 
 ## [0.1.3] — 2026-05-07
 
@@ -90,7 +93,8 @@ First feature-complete release. atom is a project-starter template with cross-pr
 - Stack presets currently include `nextjs` only. Other stacks fall back to the generic scaffold and will land per-stack in v0.2.
 - Constitution generation is a TODO marker in the cheatsheet; v0.2 will wire `speckit-constitution` automatically.
 
-[Unreleased]: https://github.com/machbuilds/atom/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/machbuilds/atom/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/machbuilds/atom/compare/v0.1.3...v0.2.0
 [0.1.3]: https://github.com/machbuilds/atom/releases/tag/v0.1.3
 [0.1.2]: https://github.com/machbuilds/atom/releases/tag/v0.1.2
 [0.1.1]: https://github.com/machbuilds/atom/releases/tag/v0.1.1
