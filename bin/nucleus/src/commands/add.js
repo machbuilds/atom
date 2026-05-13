@@ -5,6 +5,12 @@ import { deriveSlug } from '../lib/slug.js';
 import { readConfig, isEnabled } from '../lib/config.js';
 import { learningsFile } from '../lib/paths.js';
 import { appendEntry, SCHEMA_VERSION } from '../lib/jsonl.js';
+import {
+  getBacklog,
+  shouldNudge,
+  markNudged,
+  formatNudge,
+} from '../lib/promote-state.js';
 import { autoMigrateIfNeeded } from './migrate.js';
 
 const TYPES = [
@@ -101,7 +107,22 @@ export function registerAddCommand(program) {
       await appendEntry(file, entry);
 
       process.stdout.write(`${color.green('✓')} ${color.dim(entry.id)} ${color.cyan(slug)} ${color.yellow(type)} ${entry.key}\n`);
+
+      maybeNudge();
     });
+}
+
+function maybeNudge() {
+  try {
+    const config = readConfig();
+    if (!config) return;
+    const backlog = getBacklog();
+    if (!shouldNudge(config, backlog)) return;
+    process.stderr.write(color.dim(formatNudge(backlog)) + '\n');
+    markNudged(config);
+  } catch {
+    // Nudging is best-effort; never break the main command.
+  }
 }
 
 async function resolveInsight(positional, flagInsight) {

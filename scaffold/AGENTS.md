@@ -178,13 +178,33 @@ Before non-obvious decisions, search for prior context:
 
 **When to add to nucleus:**
 
-The capture mode is in `~/.atom/nucleus/config.json`. Three modes:
+The capture mode is in `~/.atom/nucleus/config.json`. Capture is not
+automated — there is no daemon, no hook, no cron. In `claude-managed`
+mode you (the AI) actively call `nucleus add` during the session; in
+`manual` mode you surface candidates and let the user run it.
+
+Active triggers for capture (don't wait for a session boundary —
+capture in-flow when one of these fires):
+
+- **After fixing a non-obvious bug.** What was the surprise? Capture.
+- **After a design decision with rationale.** Why this approach over
+  the alternative? Capture.
+- **After discovering a generalizable pattern.** A snippet, a flag, a
+  workflow that worked. Capture.
+- **At `/clear` or end-of-task signals.** Sweep recent work and
+  capture anything you missed.
+
+The bar is **low**. If you're unsure whether to capture, capture.
+Promotion (later, by the user) is where refinement happens; nucleus
+is the journal.
+
+Per capture-mode flavor:
 
 | Mode | AI behavior |
 |---|---|
-| `claude-managed` (default) | Capture at natural session boundaries: end of feature, after a commit, on `/clear`. |
-| `manual` | Surface candidates to the user ("Worth capturing? — `<one-line>`") but do not call `nucleus add`. The user runs it. |
-| `auto-timer` | A background process drains a session log periodically. Append to `~/.atom/nucleus/sessions/<session>.log` instead of calling `nucleus add` directly. |
+| `claude-managed` (default) | You call `nucleus add` directly when a trigger fires. |
+| `manual` | You surface a one-line candidate ("Worth capturing? — `<one-line>`") but the user runs the command. |
+| `auto-timer` | Reserved. Behave the same as `claude-managed` until the daemon ships. |
 
 Capture command:
 
@@ -197,8 +217,23 @@ nucleus add "<insight>" \
   --files path/to/file
 ```
 
-The bar to capture is **low** — anything that might be useful later.
-nucleus is the journal; refinement happens at promotion time.
+**When to surface promotion candidates:**
+
+After **3+ captures in a single session**, OR when the user signals
+end-of-task ("ship it", "we're done", `/clear`, commit-ready), pause
+and surface promotion candidates in a single message:
+
+> "I've captured N entries this session. Worth promoting any to your
+> playbook? Top candidates: …"
+
+Pick 1–2 entries with the strongest generalization potential. An
+entry passes the test if it would help a project unrelated to this
+one, doesn't reference project-specific names or vendor quirks, and
+describes a pattern rather than an incident.
+
+**Do not call `nucleus promote` directly** — it opens `$EDITOR`
+interactively, which doesn't work in agent flows. Print the command
+for the user instead: `nucleus promote <ULID>`.
 
 **What not to do:**
 
@@ -208,6 +243,8 @@ nucleus is the journal; refinement happens at promotion time.
   not a learning. "Cache the in-flight refresh promise" is.
 - Do not invoke `nucleus sync` automatically. Sync is on the user's
   clock (on `/clear`, end of day, or explicit request).
+- Do not run `nucleus promote` yourself. Print the command and let
+  the user decide.
 
 ### learnings — the user's playbook of patterns to carry forward
 

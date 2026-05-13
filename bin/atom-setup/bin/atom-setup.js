@@ -260,6 +260,7 @@ function printCheatsheet(state, preflight) {
     tasks.push(`${color.cyan('•')} Initialize nucleus (your session memory): ${color.cyan('nucleus init')}`);
     tasks.push(`${color.cyan('•')} Initialize learnings (your local playbook): ${color.cyan('learnings init')}`);
     tasks.push(`  ${color.dim('Both are 100% yours. Optional GitHub sync to your private repo.')}`);
+    tasks.push(`  ${color.dim('Once you have a backlog, run `nucleus review` to see what is worth promoting.')}`);
   }
   if (a.mem0) {
     tasks.push(`${color.cyan('•')} Set up mem0 MCP: see ${color.cyan('docs/INSTALL.md')} (or wherever it lives in scaffold)`);

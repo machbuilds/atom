@@ -31,12 +31,12 @@ export async function run(state, ctx) {
       {
         value: 'claude-managed',
         label: 'Claude-managed',
-        hint: 'at session boundaries · recommended',
+        hint: 'Claude captures during sessions; you promote manually · recommended',
       },
       {
         value: 'auto-timer',
         label: 'Auto-timer',
-        hint: 'background process, every N minutes',
+        hint: 'reserved — no daemon yet; behaves like claude-managed',
       },
       {
         value: 'manual',

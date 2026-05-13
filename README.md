@@ -139,15 +139,21 @@ Code can be rewritten. The lessons you learned writing it are harder to recover.
    <new-project>/learnings/<type>/<key>.md  (carried forward)
 ```
 
-The first arrow is automated when Claude is your AI (`claude-managed` capture mode is the default). The second is human-in-the-loop — `nucleus promote` opens `$EDITOR` so you can refine the draft before it lands. The third runs every time you bootstrap a project from atom — your playbook follows you.
+**Capture** (first arrow) is often Claude-led but always you-in-the-loop. When you work with Claude Code in your project, Claude is instructed — via `AGENTS.md` and `.claude/skills/nucleus/` — to run `nucleus add` at natural moments (after a non-obvious bug fix, a design decision with rationale, on `/clear`). With other AI tools, or when you'd rather drive yourself, you run `nucleus add` manually. There is no background daemon; capture happens when something in your session tells it to.
+
+**Promote** (second arrow) is always you. `nucleus promote <id>` opens `$EDITOR` so you can refine the draft before it lands in your playbook. Graduation needs human judgment — what generalizes, what stays project-specific.
+
+**Carry forward** (third arrow) runs every time you bootstrap a project from atom — your playbook follows you, filtered by stack tags.
+
+If captures pile up unpromoted, run **`nucleus review`** for a 30-second triage of what's worth graduating.
 
 ### Capture modes
 
 | Mode | What happens |
 |---|---|
-| **`claude-managed`** (default) | Claude calls `nucleus add` at natural session boundaries (end of feature, after a commit, on `/clear`). Lowest friction. |
-| **`auto-timer`** | A background process drains a session log every N minutes (5/15/30/60). For users who don't want to think about it. |
-| **`manual`** | Claude surfaces "worth capturing?" suggestions; you run `nucleus add` yourself. For users who want full control. |
+| **`claude-managed`** (default) | When you work with Claude Code, Claude is instructed to run `nucleus add` at natural session boundaries (after a fix, decision, or on `/clear`). Lowest friction if Claude is your daily driver. |
+| **`manual`** | Claude (or you) decides; you run `nucleus add` yourself. For users who want full control or aren't using Claude. |
+| **`auto-timer`** | Reserved — wizard collects the interval but no background daemon ships yet. Behaves like `claude-managed` in practice. |
 
 Picked at `atom-setup` time, configurable later via `~/.atom/nucleus/config.json`.
 

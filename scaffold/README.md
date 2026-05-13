@@ -18,6 +18,15 @@ Cross-project memory and a personal playbook live in `~/.atom/`:
 - `~/.atom/learnings/` — graduated patterns that follow you into every
   new project
 
+The flow is two steps: **capture → promote**. When you work with
+Claude Code, Claude is instructed (via `AGENTS.md` + `.claude/skills/`)
+to run `nucleus add` at natural moments — after a fix, a decision, on
+`/clear`. With other AI tools, you run `nucleus add` yourself. Then
+`nucleus promote <id>` is always you — it opens `$EDITOR` because
+graduation needs human judgment.
+
+If captures pile up, run `nucleus review` for a 30-second triage.
+
 If you haven't yet, run once per machine:
 
 ```bash

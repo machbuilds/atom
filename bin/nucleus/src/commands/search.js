@@ -3,6 +3,13 @@ import { join } from 'node:path';
 import color from 'picocolors';
 import { NUCLEUS_PROJECTS_DIR, learningsFile } from '../lib/paths.js';
 import { readEntries } from '../lib/jsonl.js';
+import { readConfig } from '../lib/config.js';
+import {
+  getBacklog,
+  shouldNudge,
+  markNudged,
+  formatNudge,
+} from '../lib/promote-state.js';
 import { autoMigrateIfNeeded } from './migrate.js';
 
 const CONFIDENCE_RANK = { low: 1, medium: 2, high: 3 };
@@ -32,7 +39,7 @@ export function registerSearchCommand(program) {
 
       if (!existsSync(NUCLEUS_PROJECTS_DIR)) {
         if (opts.json) console.log('[]');
-        else console.error('No projects in ~/.nucleus yet.');
+        else console.error('No projects in ~/.atom/nucleus yet.');
         process.exit(0);
       }
 
@@ -53,13 +60,29 @@ export function registerSearchCommand(program) {
 
       if (limited.length === 0) {
         console.error(color.dim('No matches.'));
+        maybeNudge();
         process.exit(0);
       }
 
       for (const e of limited) {
         printEntry(e);
       }
+
+      maybeNudge();
     });
+}
+
+function maybeNudge() {
+  try {
+    const config = readConfig();
+    if (!config) return;
+    const backlog = getBacklog();
+    if (!shouldNudge(config, backlog)) return;
+    process.stderr.write(color.dim(formatNudge(backlog)) + '\n');
+    markNudged(config);
+  } catch {
+    // Nudging is best-effort; never break the main command.
+  }
 }
 
 function collect(value, prev) {

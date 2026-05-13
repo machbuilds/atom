@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG = {
     remote: null,
   },
   perProject: {},
+  lastNudgeAt: null,
 };
 
 export function readConfig() {
