@@ -55,7 +55,7 @@ if [ "$NODE_MAJOR" -lt 18 ]; then
   exit 1
 fi
 
-CLIS=(atom atom-setup nucleus learnings model-race)
+CLIS=(atom atom-setup nucleus learnings model-race atom-update-check)
 
 # Find the GLOBAL atom-setup (skip cwd in PATH so we don't recurse into
 # this script). Used both for "already installed?" detection and for the

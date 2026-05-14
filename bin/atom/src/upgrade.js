@@ -22,9 +22,21 @@ import color from 'picocolors';
 
 const DEFAULT_VERSION_URL = 'https://raw.githubusercontent.com/machbuilds/atom/main/VERSION';
 const VERSION_URL = process.env.ATOM_VERSION_URL || DEFAULT_VERSION_URL;
-const CLIS = ['atom', 'atom-setup', 'nucleus', 'learnings', 'model-race'];
+const CLIS = ['atom', 'atom-setup', 'nucleus', 'learnings', 'model-race', 'atom-update-check'];
 
 export async function runUpgrade(args) {
+  // --snooze is handled by the update-check worker, which owns the
+  // state file. We delegate so there's only one writer of update-check.json.
+  const snoozeIdx = args.indexOf('--snooze');
+  if (snoozeIdx !== -1) {
+    const duration = args[snoozeIdx + 1];
+    if (!duration) {
+      fail('--snooze requires a duration. Use one of: 24h, 48h, 7d');
+    }
+    const r = spawnSync('atom-update-check', ['--snooze', duration], { stdio: 'inherit' });
+    process.exit(r.status ?? 1);
+  }
+
   const checkOnly = args.includes('--check');
 
   const installDir = findInstallDir();
@@ -200,7 +212,7 @@ function isDirty(installDir) {
 
 function manualUpgradeCmd(installDir) {
   return `  cd ${installDir} && git pull && \\
-    for cli in bin/atom bin/atom-setup bin/nucleus bin/learnings bin/model-race; do
+    for cli in bin/atom bin/atom-setup bin/nucleus bin/learnings bin/model-race bin/atom-update-check; do
       (cd "$cli" && npm install && npm install -g .)
     done`;
 }

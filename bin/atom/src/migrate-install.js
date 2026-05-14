@@ -26,7 +26,7 @@ import { spawnSync } from 'node:child_process';
 import color from 'picocolors';
 
 const DEFAULT_GIT_URL = 'https://github.com/machbuilds/atom.git';
-const CLIS = ['atom', 'atom-setup', 'nucleus', 'learnings', 'model-race'];
+const CLIS = ['atom', 'atom-setup', 'nucleus', 'learnings', 'model-race', 'atom-update-check'];
 
 export async function runMigrateInstall(args) {
   const dryRun = args.includes('--dry-run');
@@ -121,7 +121,7 @@ export async function runMigrateInstall(args) {
 
 function manualReinstallCmd(installDir) {
   return `  cd ${installDir} && \\
-    for cli in bin/atom bin/atom-setup bin/nucleus bin/learnings bin/model-race; do
+    for cli in bin/atom bin/atom-setup bin/nucleus bin/learnings bin/model-race bin/atom-update-check; do
       (cd "$cli" && npm install && npm install -g .)
     done`;
 }

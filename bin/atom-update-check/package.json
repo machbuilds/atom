@@ -1,0 +1,14 @@
+{
+  "name": "@atom/atom-update-check",
+  "version": "0.1.0",
+  "description": "Background update-check worker for atom. Polls upstream VERSION, manages the snooze state file, prints upgrade notices. Invoked lazily from every atom CLI's startup.",
+  "type": "module",
+  "bin": {
+    "atom-update-check": "bin/atom-update-check.js"
+  },
+  "main": "src/check.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}

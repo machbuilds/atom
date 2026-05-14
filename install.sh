@@ -24,7 +24,7 @@ ATOM_HOME_DIR="${ATOM_HOME:-$HOME/.atom}"
 TARGET="$ATOM_HOME_DIR/atom"
 BRANCH="${ATOM_BRANCH:-}"
 
-CLIS=(atom atom-setup nucleus learnings model-race)
+CLIS=(atom atom-setup nucleus learnings model-race atom-update-check)
 
 # ─── pre-flight ─────────────────────────────────────────────────────
 if ! command -v git > /dev/null 2>&1; then

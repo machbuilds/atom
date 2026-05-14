@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import '../src/lib/update-check-client.js';
 import { Command } from 'commander';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

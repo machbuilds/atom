@@ -796,6 +796,162 @@ if [ "${ATOM_TEST_SLOW:-0}" = "1" ]; then
 fi
 
 # =============================================================
+section "Test 20: bin/atom-update-check + snooze + inlined client"
+# =============================================================
+#
+# Item #11: lazy update-check that polls upstream VERSION, prints a
+# notice on the next CLI invocation, snoozable 24h/48h/7d. State at
+# ~/.atom/state/update-check.json. Inlined client logic lives in five
+# byte-identical copies (one per CLI); the worker handles network +
+# snooze in one place.
+
+# 20a: the five inlined client copies are byte-identical to the canonical.
+UCC_CANON="$ATOM/bin/atom-update-check/src/client.js"
+UCC_HASH=$(md5 -q "$UCC_CANON")
+DRIFT=()
+for cli in atom atom-setup nucleus learnings model-race; do
+  c="$ATOM/bin/$cli/src/lib/update-check-client.js"
+  if [ ! -f "$c" ]; then
+    DRIFT+=("$cli (file missing)")
+    continue
+  fi
+  H=$(md5 -q "$c")
+  if [ "$H" != "$UCC_HASH" ]; then
+    DRIFT+=("$cli")
+  fi
+done
+if [ ${#DRIFT[@]} -eq 0 ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  20.1 all 5 inlined update-check-client.js copies match canonical")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  20.1 update-check client drift in: ${DRIFT[*]} (resync from bin/atom-update-check/src/client.js)")
+fi
+
+# 20b: tick writes the state file with lastChecked + latestVersion.
+T20_HOME=$SCRATCH/test-20-state
+T20_INSTALL=$SCRATCH/test-20-install
+rm -rf "$T20_HOME" "$T20_INSTALL"
+mkdir -p "$T20_HOME" "$T20_INSTALL"
+echo "0.2.0" > "$T20_INSTALL/VERSION"
+echo "0.2.5" > "$T20_HOME/upstream"
+
+ATOM_STATE_DIR="$T20_HOME/state" \
+  ATOM_INSTALL="$T20_INSTALL" \
+  ATOM_VERSION_FILE="$T20_HOME/upstream" \
+  node "$ATOM/bin/atom-update-check/bin/atom-update-check.js" tick > "$LOG_DIR/t20b-tick.log" 2>&1
+RC=$?
+if [ "$RC" = "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  20.2 atom-update-check tick exits 0")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  20.2 tick exited $RC")
+fi
+assert "20.3 state file written by tick" test -f "$T20_HOME/state/update-check.json"
+assert_grep "20.4 state has latestVersion from upstream" "0.2.5" "$T20_HOME/state/update-check.json"
+assert_grep "20.5 state has lastChecked timestamp" "lastChecked" "$T20_HOME/state/update-check.json"
+
+# 20c: inlined client prints notice when upstream is newer.
+ATOM_STATE_DIR="$T20_HOME/state" \
+  ATOM_INSTALL="$T20_INSTALL" \
+  node "$ATOM/bin/atom/bin/atom.js" --version > "$LOG_DIR/t20c-notice.log" 2>&1
+assert_grep "20.6 inlined client prints upgrade notice (atom CLI)" "0.2.5 is available" "$LOG_DIR/t20c-notice.log"
+assert_grep "20.7 notice mentions \`atom upgrade --snooze\`" "snooze: \\\`atom upgrade --snooze 7d\\\`" "$LOG_DIR/t20c-notice.log"
+
+# 20d: second invocation within 24h does NOT re-print the notice.
+ATOM_STATE_DIR="$T20_HOME/state" \
+  ATOM_INSTALL="$T20_INSTALL" \
+  node "$ATOM/bin/atom/bin/atom.js" --version > "$LOG_DIR/t20d-quiet.log" 2>&1
+assert_not_grep "20.8 second invocation suppresses repeat notice (debounce 24h)" "is available" "$LOG_DIR/t20d-quiet.log"
+
+# 20e: ATOM_UPDATE_CHECK_DISABLED kill-switch silences the notice.
+T20E_STATE=$SCRATCH/test-20e-state
+rm -rf "$T20E_STATE"
+mkdir -p "$T20E_STATE"
+cat > "$T20E_STATE/update-check.json" <<EOF
+{ "lastChecked": "2026-05-14T00:00:00.000Z", "latestVersion": "0.99.99" }
+EOF
+ATOM_UPDATE_CHECK_DISABLED=1 \
+  ATOM_STATE_DIR="$T20E_STATE" \
+  ATOM_INSTALL="$T20_INSTALL" \
+  node "$ATOM/bin/atom/bin/atom.js" --version > "$LOG_DIR/t20e-killswitch.log" 2>&1
+assert_not_grep "20.9 ATOM_UPDATE_CHECK_DISABLED suppresses notice entirely" "0.99.99" "$LOG_DIR/t20e-killswitch.log"
+
+# 20f: snooze 7d sets snoozeUntil and clears lastNotified.
+T20F_STATE=$SCRATCH/test-20f-state
+rm -rf "$T20F_STATE"
+mkdir -p "$T20F_STATE"
+cat > "$T20F_STATE/update-check.json" <<EOF
+{ "lastNotified": "2026-05-14T00:00:00.000Z", "latestVersion": "0.2.5" }
+EOF
+ATOM_STATE_DIR="$T20F_STATE" \
+  node "$ATOM/bin/atom-update-check/bin/atom-update-check.js" --snooze 7d > "$LOG_DIR/t20f-snooze.log" 2>&1
+assert_grep "20.10 snooze 7d prints confirmation" "snoozed for 7d" "$LOG_DIR/t20f-snooze.log"
+assert_grep "20.11 snoozeUntil written to state" "snoozeUntil" "$T20F_STATE/update-check.json"
+assert_grep "20.12 lastNotified cleared by snooze (so re-notify after expiry)" '"lastNotified": null' "$T20F_STATE/update-check.json"
+
+# 20g: bogus snooze duration rejected.
+ATOM_STATE_DIR="$T20F_STATE" \
+  node "$ATOM/bin/atom-update-check/bin/atom-update-check.js" --snooze 99x > "$LOG_DIR/t20g-bogus.log" 2>&1
+RC=$?
+if [ "$RC" != "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  20.13 atom-update-check rejects bogus snooze duration")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  20.13 should have rejected '99x' but exited 0")
+fi
+assert_grep "20.14 error mentions valid durations" "24h, 48h, 7d" "$LOG_DIR/t20g-bogus.log"
+
+# 20h: notice suppressed while snoozed.
+# Build state where snoozeUntil is in the future; notice should be skipped.
+T20H_STATE=$SCRATCH/test-20h-state
+rm -rf "$T20H_STATE"
+mkdir -p "$T20H_STATE"
+FUTURE=$(date -u -v+1d "+%Y-%m-%dT%H:%M:%S.000Z" 2>/dev/null || date -u -d "+1 day" "+%Y-%m-%dT%H:%M:%S.000Z")
+cat > "$T20H_STATE/update-check.json" <<EOF
+{ "lastChecked": "2026-05-14T00:00:00.000Z", "latestVersion": "0.99.99", "snoozeUntil": "$FUTURE" }
+EOF
+ATOM_STATE_DIR="$T20H_STATE" \
+  ATOM_INSTALL="$T20_INSTALL" \
+  node "$ATOM/bin/atom/bin/atom.js" --version > "$LOG_DIR/t20h-snoozed.log" 2>&1
+assert_not_grep "20.15 notice suppressed while snooze is active" "0.99.99" "$LOG_DIR/t20h-snoozed.log"
+
+# 20i: \`atom upgrade --snooze 24h\` delegates to atom-update-check.
+T20I_STATE=$SCRATCH/test-20i-state
+T20I_BIN=$SCRATCH/test-20i-bin
+rm -rf "$T20I_STATE" "$T20I_BIN"
+mkdir -p "$T20I_STATE" "$T20I_BIN"
+# Put atom-update-check on PATH so `atom upgrade --snooze` can spawn it.
+ln -sf "$ATOM/bin/atom-update-check/bin/atom-update-check.js" "$T20I_BIN/atom-update-check"
+ATOM_STATE_DIR="$T20I_STATE" \
+  ATOM_UPDATE_CHECK_DISABLED=1 \
+  PATH="$T20I_BIN:$PATH" \
+  node "$ATOM/bin/atom/bin/atom.js" upgrade --snooze 24h > "$LOG_DIR/t20i-upgrade-snooze.log" 2>&1
+assert_grep "20.16 \`atom upgrade --snooze 24h\` delegates and confirms" "snoozed for 24h" "$LOG_DIR/t20i-upgrade-snooze.log"
+assert "20.17 state file written by delegation" test -f "$T20I_STATE/update-check.json"
+
+# 20j: \`atom upgrade --snooze\` with no duration fails fast.
+ATOM_STATE_DIR="$T20I_STATE" \
+  ATOM_UPDATE_CHECK_DISABLED=1 \
+  PATH="$T20I_BIN:$PATH" \
+  node "$ATOM/bin/atom/bin/atom.js" upgrade --snooze > "$LOG_DIR/t20j-nodur.log" 2>&1
+RC=$?
+if [ "$RC" != "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  20.18 \`atom upgrade --snooze\` (no duration) exits non-zero")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  20.18 \`atom upgrade --snooze\` should have failed with no duration")
+fi
+assert_grep "20.19 missing-duration error mentions valid tiers" "24h, 48h, 7d" "$LOG_DIR/t20j-nodur.log"
+
+# 20k: \`atom --help\` advertises the snooze flag.
+node "$ATOM/bin/atom/bin/atom.js" --help > "$LOG_DIR/t20k-help.log" 2>&1
+assert_grep "20.20 atom --help advertises --snooze" "atom upgrade --snooze" "$LOG_DIR/t20k-help.log"
+
+# =============================================================
 # Report
 # =============================================================
 

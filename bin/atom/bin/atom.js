@@ -8,6 +8,7 @@
 //   atom upgrade --check      check for an update without installing
 //   atom migrate-install      relocate a 0.1.x in-place install to ~/.atom/atom/
 
+import '../src/lib/update-check-client.js';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -72,6 +73,7 @@ ${color.bold('Compare')} ${color.dim('— for high-stakes features')}
 ${color.bold('Maintain')}
   ${color.cyan('atom upgrade')}                                  Fetch a new release of atom and re-install CLIs.
   ${color.cyan('atom upgrade --check')}                          Check for an update without installing.
+  ${color.cyan('atom upgrade --snooze')} ${color.dim('24h|48h|7d')}              Suppress the upgrade notice for a tier.
   ${color.cyan('atom migrate-install')}                          One-shot: move a 0.1.x in-place install to ~/.atom/atom/.
 
 ${color.bold('Help')}
