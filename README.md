@@ -20,6 +20,10 @@ A project-starter template with cross-project memory, multi-tool AI support, and
 [![Build: v0.2.1](https://img.shields.io/badge/build-v0.2.1-00bcd4?style=for-the-badge)](docs/planning/)
 [![AI Tools](https://img.shields.io/badge/AI%20tools-Claude%20%C2%B7%20Codex%20%C2%B7%20Gemini%20%C2%B7%20Cursor%20%C2%B7%20Copilot-7c4dff?style=for-the-badge)](#tool-compatibility)
 
+<br>
+
+<img src="extras/screenshots/wizard.gif" alt="atom-setup wizard — full run, from logo to dry-run finish" width="900">
+
 </div>
 
 ---
@@ -67,6 +71,10 @@ After the first run, `atom-setup`, `nucleus`, `learnings`, `model-race`, and `at
 > [!TIP]
 > Want zero questions? Run `./atom-setup --bare` and you're done in under 5 seconds. All flags pass through (`--minimal`, `--full`, `--dry-run`, `--resume`, etc.).
 
+<p align="center">
+  <img src="extras/screenshots/marketing-bare-mode.png" alt="atom-setup --bare — five-second bootstrap" width="700">
+</p>
+
 > [!NOTE]
 > If the install errors with `EACCES`, you need to either prefix the command with `sudo` or [set up an npm prefix that doesn't need sudo](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally). The installer points you at this if it fails.
 
@@ -88,6 +96,10 @@ Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without wri
 ---
 
 ## What atom gives you
+
+<p align="center">
+  <img src="extras/screenshots/marketing-atom-help.png" alt="atom --help — the full command surface" width="700">
+</p>
 
 | Feature | What it does |
 |---|---|
@@ -251,6 +263,16 @@ atom/
 <details>
 <summary><strong>The 10 wizard sections</strong></summary>
 
+<p align="center">
+  <img src="extras/screenshots/02-stack.png" alt="Step 2 — stack preset picker" width="640">
+  <br><em>Step 2 — stack preset picker (18 options, 6 with opinionated presets)</em>
+</p>
+
+<p align="center">
+  <img src="extras/screenshots/03-nucleus.png" alt="Step 3 — nucleus capture-mode picker, prior answers visible above" width="640">
+  <br><em>Step 3 — nucleus capture mode (prior answers stay on screen as context)</em>
+</p>
+
 1. **Project basics** — name, description, visibility, multi-agent y/n
 2. **Stack & deploy** — primary stack, deploy target. Drives presets.
 3. **nucleus** — enable, capture mode (claude-managed / auto-timer / manual)
@@ -268,6 +290,11 @@ atom/
 
 <details>
 <summary><strong>Polish features (every wizard run)</strong></summary>
+
+<p align="center">
+  <img src="extras/screenshots/04-summary.png" alt="Summary screen + dry-run output" width="700">
+  <br><em>Summary screen (above) and the dry-run changes panel (below) — together in one frame</em>
+</p>
 
 - **Pre-flight detection.** Checklist of `git`, `node`, `gh`, `docker`, `gum` availability at the top of every run.
 - **Smart defaults.** Project name from `cwd`. Author/email from `git config`. GitHub user from `gh auth status`. Year from current date.
