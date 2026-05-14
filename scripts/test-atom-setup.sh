@@ -515,6 +515,147 @@ assert "13.2 docker.yml workflow added (preset didn't provide it)" \
   test -f "$T13/.github/workflows/docker.yml"
 
 # =============================================================
+section "Test 14: \`atom-setup new <name>\` scaffolds from ATOM_SOURCE_DIR"
+# =============================================================
+#
+# Item #9: separates "atom source" from "the project being bootstrapped."
+# `new` mode reads scaffold/extras from $ATOM_SOURCE_DIR and writes into a
+# fresh target dir at $PWD/<name>/. The source must be byte-identical
+# before and after.
+
+T14_SRC=$SCRATCH/test-14-source
+T14_PARENT=$SCRATCH/test-14-parent
+T14_FAKE_HOME=$SCRATCH/test-14-fake-home
+rm -rf "$T14_SRC" "$T14_PARENT" "$T14_FAKE_HOME"
+cp -R "$ATOM" "$T14_SRC"
+mkdir -p "$T14_PARENT" "$T14_FAKE_HOME"
+
+# Hash the source BEFORE running the wizard. Excludes node_modules and
+# .git so we don't trip on caches the test apparatus might disturb.
+HASH_BEFORE=$(find "$T14_SRC" -type f -not -path '*/node_modules/*' -not -path '*/.git/*' -exec md5 -q {} \; | sort | md5 -q)
+
+(
+  cd "$T14_PARENT" && \
+  ATOM_SOURCE_DIR="$T14_SRC" \
+  ATOM_HOME="$T14_FAKE_HOME/.atom" \
+  node "$T14_SRC/bin/atom-setup/bin/atom-setup.js" new my-new-project --bare --yes
+) > "$LOG_DIR/t14-new.log" 2>&1
+RC=$?
+if [ "$RC" = "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  14.1 atom-setup new exits 0")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  14.1 atom-setup new exited $RC")
+fi
+
+HASH_AFTER=$(find "$T14_SRC" -type f -not -path '*/node_modules/*' -not -path '*/.git/*' -exec md5 -q {} \; | sort | md5 -q)
+if [ "$HASH_BEFORE" = "$HASH_AFTER" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  14.2 ATOM_SOURCE_DIR is byte-identical before and after")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  14.2 ATOM_SOURCE_DIR was modified during \`new\`")
+fi
+
+T14_PROJ="$T14_PARENT/my-new-project"
+assert "14.3 target directory created at \$PARENT/my-new-project" test -d "$T14_PROJ"
+assert "14.4 AGENTS.md scaffolded into target" test -f "$T14_PROJ/AGENTS.md"
+assert "14.5 CLAUDE.md scaffolded into target" test -f "$T14_PROJ/CLAUDE.md"
+assert "14.6 .gitignore scaffolded into target" test -f "$T14_PROJ/.gitignore"
+assert "14.7 LICENSE written" test -f "$T14_PROJ/LICENSE"
+assert "14.8 .github/copilot-instructions.md scaffolded" test -f "$T14_PROJ/.github/copilot-instructions.md"
+
+# atom-maintenance source files should NOT have been copied into target.
+assert_not "14.9 bin/ NOT in target (never copied)" test -d "$T14_PROJ/bin"
+assert_not "14.10 scaffold/ NOT in target (never copied)" test -d "$T14_PROJ/scaffold"
+assert_not "14.11 extras/ NOT in target (never copied)" test -d "$T14_PROJ/extras"
+assert_not "14.12 scripts/ NOT in target (never copied)" test -d "$T14_PROJ/scripts"
+assert_not "14.13 docs/planning/ NOT in target" test -d "$T14_PROJ/docs/planning"
+
+assert_grep "14.14 intro uses 'new · <name>' label" "new . my-new-project" "$LOG_DIR/t14-new.log"
+assert_grep "14.15 outro shows the chosen project name" "my-new-project is ready" "$LOG_DIR/t14-new.log"
+
+# Fresh git history at target.
+COMMITS=$(cd "$T14_PROJ" && git log --oneline 2>/dev/null | wc -l | tr -d ' ')
+if [ "$COMMITS" = "1" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  14.16 exactly one commit on main in target")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  14.16 expected 1 commit in target; got $COMMITS")
+fi
+assert_grep "14.17 initial commit names the project" "my-new-project" "$LOG_DIR/t14-new.log"
+
+# =============================================================
+section "Test 15: \`new\` refuses when target dir already exists and is non-empty"
+# =============================================================
+
+T15_PARENT=$SCRATCH/test-15-parent
+T15_FAKE_HOME=$SCRATCH/test-15-fake-home
+rm -rf "$T15_PARENT" "$T15_FAKE_HOME"
+mkdir -p "$T15_PARENT/already-here" "$T15_FAKE_HOME"
+echo "hello" > "$T15_PARENT/already-here/keep-me.txt"
+
+(
+  cd "$T15_PARENT" && \
+  ATOM_SOURCE_DIR="$T14_SRC" \
+  ATOM_HOME="$T15_FAKE_HOME/.atom" \
+  node "$T14_SRC/bin/atom-setup/bin/atom-setup.js" new already-here --bare --yes
+) > "$LOG_DIR/t15-collision.log" 2>&1
+RC=$?
+if [ "$RC" != "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  15.1 \`new\` exits non-zero when target exists and is non-empty")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  15.1 \`new\` should have refused but exited 0")
+fi
+assert_grep "15.2 refusal message names the conflicting directory" "already-here" "$LOG_DIR/t15-collision.log"
+assert "15.3 pre-existing file at target preserved" test -f "$T15_PARENT/already-here/keep-me.txt"
+
+# =============================================================
+section "Test 16: \`new\` refuses when ATOM_SOURCE_DIR is missing or empty"
+# =============================================================
+
+T16_PARENT=$SCRATCH/test-16-parent
+T16_FAKE_HOME=$SCRATCH/test-16-fake-home
+T16_BAD_SOURCE=$SCRATCH/test-16-no-source
+rm -rf "$T16_PARENT" "$T16_FAKE_HOME" "$T16_BAD_SOURCE"
+mkdir -p "$T16_PARENT" "$T16_FAKE_HOME" "$T16_BAD_SOURCE"
+# Bad source: dir exists but has no scaffold/ or extras/.
+
+(
+  cd "$T16_PARENT" && \
+  ATOM_SOURCE_DIR="$T16_BAD_SOURCE" \
+  ATOM_HOME="$T16_FAKE_HOME/.atom" \
+  node "$ATOM/bin/atom-setup/bin/atom-setup.js" new doomed --bare --yes
+) > "$LOG_DIR/t16-no-source.log" 2>&1
+RC=$?
+if [ "$RC" != "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  16.1 \`new\` exits non-zero when ATOM_SOURCE_DIR is not an atom checkout")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  16.1 \`new\` should have refused but exited 0")
+fi
+assert_grep "16.2 message points the user at install hint" "atom source not found" "$LOG_DIR/t16-no-source.log"
+assert_not "16.3 no target directory was created on the failed run" test -d "$T16_PARENT/doomed"
+
+# =============================================================
+section "Test 17: legacy in-place mode prints deprecation notice"
+# =============================================================
+
+T17=$SCRATCH/test-17-deprecation
+prepare "$T17"
+$SETUP --bare --target "$T17" --yes > "$LOG_DIR/t17-legacy.log" 2>&1
+assert_grep "17.1 deprecation notice fires in in-place mode" "Deprecated" "$LOG_DIR/t17-legacy.log"
+assert_grep "17.2 notice points at \`atom-setup new\`" "atom-setup new" "$LOG_DIR/t17-legacy.log"
+# Legacy must still produce a working project.
+assert "17.3 legacy in-place still scaffolds AGENTS.md" test -f "$T17/AGENTS.md"
+assert_not "17.4 legacy in-place still removes scaffold/" test -d "$T17/scaffold"
+
+# =============================================================
 # Report
 # =============================================================
 

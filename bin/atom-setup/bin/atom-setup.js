@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve, basename } from 'node:path';
+import { homedir } from 'node:os';
 import {
   intro, outro, confirm, isCancel, cancel, note, log, spinner,
 } from '@clack/prompts';
@@ -40,27 +41,114 @@ const SECTIONS = [
   { name: 'git', mod: git },
 ];
 
-const program = new Command();
-program
-  .name('atom-setup')
-  .description('Transform a cloned atom checkout into a personalized project.')
-  .version(pkg.version)
-  .option('--bare', 'no questions, just files (under 5 seconds)')
-  .option('--minimal', '5 essential questions (~30 seconds)')
-  .option('--full', 'every section, no defaults autopilot (~5 minutes)')
-  .option('--resume', `pick up from ${STATE_FILENAME}`)
-  .option('--dry-run', 'show what would change without writing')
-  .option('--target <dir>', 'project directory to operate on', process.cwd())
-  .option('--yes', 'skip the final confirmation prompt');
+// Manual verb routing: `atom-setup new <name>` runs the new-project flow;
+// anything else falls through to the legacy in-place wizard. Done this way
+// (rather than via commander subcommands) to keep the existing flag surface
+// intact and avoid commander's subcommand/default-action quirks.
+const rawArgs = process.argv.slice(2);
+if (rawArgs[0] === 'new') {
+  const name = rawArgs[1];
+  if (!name || name.startsWith('-')) {
+    console.error('Usage: atom-setup new <project-name> [--bare|--minimal|--full] [--dry-run] [--yes]');
+    process.exit(1);
+  }
+  runNewCommand(name, rawArgs.slice(2)).catch((err) => {
+    console.error(color.red(err.stack || err.message || err));
+    process.exit(1);
+  });
+} else {
+  const program = buildLegacyProgram();
+  program.parseAsync(process.argv).then(() => main(program.opts(), { mode: 'in-place' })).catch((err) => {
+    console.error(color.red(err.stack || err.message || err));
+    process.exit(1);
+  });
+}
 
-program.parseAsync(process.argv).then(() => main(program.opts())).catch((err) => {
-  console.error(color.red(err.stack || err.message || err));
-  process.exit(1);
-});
+function buildLegacyProgram() {
+  const program = new Command();
+  program
+    .name('atom-setup')
+    .description('Transform a cloned atom checkout into a personalized project. (Legacy in-place mode. For new projects, prefer `atom-setup new <name>`.)')
+    .version(pkg.version)
+    .option('--bare', 'no questions, just files (under 5 seconds)')
+    .option('--minimal', '5 essential questions (~30 seconds)')
+    .option('--full', 'every section, no defaults autopilot (~5 minutes)')
+    .option('--resume', `pick up from ${STATE_FILENAME}`)
+    .option('--dry-run', 'show what would change without writing')
+    .option('--target <dir>', 'project directory to operate on', process.cwd())
+    .option('--yes', 'skip the final confirmation prompt');
+  return program;
+}
 
-async function main(opts) {
+function resolveAtomSourceDir() {
+  return process.env.ATOM_SOURCE_DIR || join(homedir(), '.atom', 'atom');
+}
+
+function isAtomSource(dir) {
+  return existsSync(join(dir, 'scaffold')) && existsSync(join(dir, 'extras'));
+}
+
+async function runNewCommand(name, args) {
+  const program = new Command();
+  program
+    .name('atom-setup new')
+    .description('Create a fresh project scaffolded from ~/.atom/atom/ (or $ATOM_SOURCE_DIR).')
+    .option('--bare', 'no questions, just files (under 5 seconds)')
+    .option('--minimal', '5 essential questions (~30 seconds)')
+    .option('--full', 'every section, no defaults autopilot (~5 minutes)')
+    .option('--resume', `pick up from ${STATE_FILENAME}`)
+    .option('--dry-run', 'show what would change without writing')
+    .option('--target <dir>', 'parent directory in which to create the project', process.cwd())
+    .option('--yes', 'skip the final confirmation prompt')
+    .allowExcessArguments(false)
+    .exitOverride();
+  await program.parseAsync(args, { from: 'user' });
+  const opts = program.opts();
+
+  // Validate name. We allow lowercase letters, digits, dashes, dots, and
+  // underscores. Reject anything that would create a parent path traversal
+  // or hide the project under a dot-directory at a weird place.
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) {
+    throw new Error(`Invalid project name '${name}'. Allowed characters: letters, digits, '.', '_', '-'.`);
+  }
+
+  const sourceDir = resolveAtomSourceDir();
+  if (!isAtomSource(sourceDir)) {
+    throw new Error(
+      `atom source not found at ${sourceDir}.\n\n` +
+      `Expected to find 'scaffold/' and 'extras/' there. Either:\n` +
+      `  - Install atom: \`curl -fsSL https://raw.githubusercontent.com/machbuilds/atom/main/install.sh | bash\`\n` +
+      `  - Or set ATOM_SOURCE_DIR to an existing atom checkout.`,
+    );
+  }
+
+  const parent = resolve(opts.target);
+  const target = resolve(parent, name);
+
+  if (existsSync(target)) {
+    const contents = readdirSync(target).filter((e) => e !== '.DS_Store');
+    if (contents.length > 0) {
+      throw new Error(
+        `Refusing to scaffold into ${target} — directory exists and is not empty.\n` +
+        `Pick a different name or remove the existing directory first.`,
+      );
+    }
+  } else {
+    mkdirSync(target, { recursive: true });
+  }
+
+  // Smart default for projectName: use the directory basename (which is
+  // exactly the name the user just gave). defaults.smartDefaults() already
+  // does this from basename(target).
+
+  await main({ ...opts, target, _projectName: name }, { mode: 'new', sourceDir });
+}
+
+async function main(opts, runOpts = {}) {
   const cwd = opts.target;
   const mode = pickMode(opts);
+  const setupMode = runOpts.mode || 'in-place';
+  const sourceDir = runOpts.sourceDir || cwd;
 
   console.clear();
   printLogo();
@@ -72,11 +160,20 @@ async function main(opts) {
     process.exit(1);
   }
 
+  const verbLabel = setupMode === 'new' ? `new · ${basename(cwd)}` : `mode: ${mode}`;
   intro(
-    `${color.bgCyan(color.black(' atom-setup '))}  ${color.dim(`mode: ${mode} · target: ${cwd}`)}`,
+    `${color.bgCyan(color.black(' atom-setup '))}  ${color.dim(`${verbLabel} · target: ${cwd}`)}`,
   );
 
   renderPreflight(preflight);
+
+  if (setupMode === 'in-place' && isAtomSource(cwd)) {
+    log.warn(
+      `${color.yellow('Deprecated:')} running atom-setup in-place (inside an atom clone) is going away.\n` +
+      `  Recommended: install atom once, then run ${color.cyan('atom-setup new <name>')} from anywhere.\n` +
+      `  Source dir: ${color.cyan(resolveAtomSourceDir())} (override with $ATOM_SOURCE_DIR).`,
+    );
+  }
 
   const defaults = smartDefaults(cwd);
 
@@ -96,6 +193,11 @@ async function main(opts) {
   state.answers.author = state.answers.author || defaults.author;
   state.answers.email = state.answers.email || defaults.email;
   state.answers.year = state.answers.year || defaults.year;
+  // In `new` mode the caller already chose a name. Use it as the seed so
+  // smartDefaults' basename guess doesn't get overridden by anything stale.
+  if (opts._projectName) {
+    state.answers.projectName = opts._projectName;
+  }
 
   if (mode === 'bare') {
     await runBareMode(state, cwd, defaults, preflight);
@@ -129,6 +231,8 @@ async function main(opts) {
     await applyState(state, cwd, {
       log: (msg) => logLines.push(msg),
       dryRun: opts.dryRun,
+      mode: setupMode,
+      sourceDir,
     });
     s.stop(opts.dryRun ? `${color.green('✓')} dry-run complete` : `${color.green('✓')} configuration applied`);
   } catch (err) {

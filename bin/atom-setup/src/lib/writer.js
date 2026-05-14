@@ -24,21 +24,32 @@ export async function applyState(state, cwd, opts = {}) {
 
   const answers = state.answers || {};
   const root = cwd;
+  // mode = 'in-place' (legacy: cwd is a clone of atom) or 'new' (cwd is
+  // a fresh, empty target; scaffold/extras live at sourceDir).
+  const mode = opts.mode === 'new' ? 'new' : 'in-place';
+  // sourceDir is where scaffold/ and extras/ live. For in-place mode it
+  // defaults to cwd (the clone is itself the source). For new mode the
+  // caller passes ATOM_SOURCE_DIR (default ~/.atom/atom/).
+  const sourceDir = opts.sourceDir || cwd;
 
-  // 1. Remove atom-maintenance docs FIRST so scaffold's promotions land cleanly.
-  removeFiles(root, REMOVE_BEFORE_PROMOTE, log, dryRun);
+  // 1. Remove atom-maintenance docs FIRST so scaffold's promotions land
+  //    cleanly. Only needed in in-place mode — in new mode the target is
+  //    empty, there's nothing to remove.
+  if (mode === 'in-place') {
+    removeFiles(root, REMOVE_BEFORE_PROMOTE, log, dryRun);
+  }
 
-  // 2. Promote scaffold/* into project root.
-  promoteScaffold(root, log, dryRun);
+  // 2. Promote scaffold/* from sourceDir into project root.
+  promoteScaffold(sourceDir, root, log, dryRun);
 
   // 3. Copy stack preset (if matched).
   if (answers.stack && STACK_PRESET_DIR[answers.stack]) {
-    copyStackPreset(root, answers.stack, log, dryRun);
+    copyStackPreset(sourceDir, root, answers.stack, log, dryRun);
   }
 
   // 4. Copy Docker files based on tier choice.
   if (answers.dockerTier && answers.dockerTier !== 'none') {
-    copyDockerTier(root, answers.dockerTier, log, dryRun);
+    copyDockerTier(sourceDir, root, answers.dockerTier, log, dryRun);
   }
 
   // 4b. Render README — substitute placeholders, splice preset's
@@ -67,8 +78,11 @@ export async function applyState(state, cwd, opts = {}) {
   }
 
   // 7. Remove atom source directories (scaffold/, bin/, etc.) now that
-  //    they have been promoted or are no longer needed.
-  removeFiles(root, REMOVE_AFTER_PROMOTE, log, dryRun);
+  //    they have been promoted or are no longer needed. Only relevant
+  //    in in-place mode — new mode never copied them into target.
+  if (mode === 'in-place') {
+    removeFiles(root, REMOVE_AFTER_PROMOTE, log, dryRun);
+  }
 
   // 8. Re-init git history (start fresh).
   if (!dryRun && opts.gitInit !== false) {
@@ -92,14 +106,14 @@ export async function applyState(state, cwd, opts = {}) {
   // the user to run `nucleus init` if they have not already.
 }
 
-function promoteScaffold(root, log, dryRun) {
-  const scaffoldDir = join(root, 'scaffold');
+function promoteScaffold(sourceDir, root, log, dryRun) {
+  const scaffoldDir = join(sourceDir, 'scaffold');
   if (!existsSync(scaffoldDir)) return;
   walkAndCopy(scaffoldDir, root, log, dryRun);
 }
 
-function copyStackPreset(root, stack, log, dryRun) {
-  const presetDir = join(root, STACK_PRESET_DIR[stack]);
+function copyStackPreset(sourceDir, root, stack, log, dryRun) {
+  const presetDir = join(sourceDir, STACK_PRESET_DIR[stack]);
   if (!existsSync(presetDir)) {
     log(`stack preset not found at ${presetDir}; skipping`);
     return;
@@ -138,8 +152,8 @@ function renderReadme(root, answers, log, dryRun) {
   log(`render README (${existsSync(snippet) ? 'with' : 'without'} preset snippet)`);
 }
 
-function copyDockerTier(root, tier, log, dryRun) {
-  const dockerSrc = join(root, 'extras/docker');
+function copyDockerTier(sourceDir, root, tier, log, dryRun) {
+  const dockerSrc = join(sourceDir, 'extras/docker');
   const files = DOCKER_TIER_FILES[tier];
   for (const rel of files) {
     const src = join(dockerSrc, rel);
