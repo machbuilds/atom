@@ -4,23 +4,23 @@ All notable changes to atom land here. Format: [Keep a Changelog](https://keepac
 
 ## [Unreleased]
 
-In progress — remaining v0.2 items. See `docs/planning/v0.2.md`.
+No changes pending. v0.3 candidate list at `docs/planning/v0.3.md`.
 
-### Added
+## [0.2.1] — 2026-05-14
+
+Bundled release for Wave 2 (user-facing features) + Wave 3 (distribution architecture). All five CLIs aligned to 0.2.1; new `bin/atom-update-check` ships at 0.1.0.
+
+### Added — distribution architecture
+
+- **`atom-setup new <name>`.** Separates "atom source" from "the project being bootstrapped." The wizard now reads `scaffold/` and `extras/` from `$ATOM_SOURCE_DIR` (default `~/.atom/atom/`) and writes into a fresh `./name/` directory, leaving the source byte-identical. The legacy in-place mode (running `atom-setup` inside an atom clone) still works for one release with a one-line deprecation notice pointing at the new verb. Refuses non-empty targets; refuses when `$ATOM_SOURCE_DIR` doesn't look like an atom checkout. `writer.js`'s `applyState` gained `opts.mode` (`'new'` | `'in-place'`) and `opts.sourceDir`; in `new` mode it skips `REMOVE_BEFORE_PROMOTE`/`REMOVE_AFTER_PROMOTE` since the target starts empty. See `docs/planning/v0.2.md` §9.
+- **`install.sh` at the repo root.** Curl-pipe one-liner: `curl -fsSL https://raw.githubusercontent.com/machbuilds/atom/main/install.sh | bash` clones to `~/.atom/atom/` and installs all six globals (`atom`, `atom-setup`, `nucleus`, `learnings`, `model-race`, `atom-update-check`). Idempotent: re-running on an existing install short-circuits with a hint to run `atom upgrade`. Env overrides `ATOM_HOME`, `ATOM_GIT_URL`, `ATOM_BRANCH` for tests. README Quick Start rewritten to lead with the one-liner; the manual `git clone` + `npm install -g .` path is documented immediately below ("Don't trust curl-pipe-bash? Install manually."). `SECURITY.md` adds a "Trust model for the curl-pipe installer" section covering what's trusted, what the script does, and what we'll add when there's a concrete threat model (signed checksums, tag pinning, `npm ci`).
+- **`atom migrate-install`** subcommand for relocating a 0.1.x in-place install to `~/.atom/atom/`. One shot: clones fresh, re-installs every CLI globally, leaves the old in-place clone alone (user's data, their call). Refuses if `~/.atom/atom/` already exists. New `docs/MIGRATING.md` walks through both the auto path (one command) and the manual four-step path, with troubleshooting for `EACCES` and stale shell lookups.
+- **`bin/atom-update-check/`** — lazy update notifier. Every atom CLI prints a one-line notice on startup when a newer release is published upstream ("atom 0.2.5 is available. (run `atom upgrade`, or snooze: `atom upgrade --snooze 7d`)"). State at `~/.atom/state/update-check.json` tracks `lastChecked`, `latestVersion`, `lastNotified`, `snoozeUntil`. Per-CLI startup cost is ~2ms (one JSON read + a synchronous decision; the network poll runs in a detached child `atom-update-check tick`). Throttle: 6h between polls, 24h between repeat notices. Snooze tiers: 24h, 48h, 7d via `atom upgrade --snooze <tier>`, which delegates to the worker so there's only one writer of the state file. Env overrides `ATOM_STATE_DIR`, `ATOM_VERSION_URL`, `ATOM_VERSION_FILE`, `ATOM_INSTALL`, `ATOM_UPDATE_CHECK_DISABLED` for tests. Inlined client lives at `bin/atom-update-check/src/client.js` and is mirrored byte-identically into each CLI's `src/lib/update-check-client.js` (drift detection in Test 20.1).
+
+### Added — Wave 2 features
 
 - **`nucleus review` command + CLI backlog nudge.** `nucleus add` and `nucleus search` now print a one-line footer when you have ≥10 unpromoted entries or any entry older than 14 days, debounced to once per 24h via a new `config.lastNudgeAt` field. `nucleus review` lists unpromoted entries grouped by project (oldest first), each with a copy-paste `nucleus promote <ULID>` line, supports `--limit`, `--project`, `--type`, and `--json`. New helper `bin/nucleus/src/lib/promote-state.js` exposes `getBacklog`, `shouldNudge`, `markNudged`, `formatNudge`; detection of "already promoted" entries reuses the path convention `~/.atom/learnings/<type>/<key>.md` from `promote.js`. New test harness `scripts/test-nucleus.sh` covers the thresholds, debounce, filters, and the promoted-entry skip (20 / 20 passing).
 - **Sharper Claude promotion-surfacing in the nucleus skill.** `scaffold/.claude/skills/nucleus/SKILL.md` and `scaffold/AGENTS.md` now instruct Claude to surface 1–2 promotion candidates after ≥3 captures in a session, or when the user signals end-of-task ("ship it", "we're done", `/clear`). Behavior is explicit: list the captures, propose the strongest generalization candidates, and print the `nucleus promote <ULID>` command rather than invoking it (because `nucleus promote` opens `$EDITOR` interactively, which doesn't work in agent flows).
-
-### Changed
-
-- **Honest nucleus capture framing across the README and scaffold.** The previous copy described `claude-managed` capture as "automated" — implying a daemon or hook. There isn't one: capture only happens when Claude is following AGENTS.md / SKILL.md during a session. `README.md`, `scaffold/README.md`, `scaffold/AGENTS.md`, and `scaffold/.claude/skills/nucleus/SKILL.md` now describe capture as Claude-led-during-sessions and promote as always-manual ("graduation needs human judgment"). The AGENTS.md and SKILL.md "when to capture" sections were rewritten from passive ("at session boundaries") to active triggers (after a non-obvious bug fix, after a design decision with rationale, on `/clear`). The wizard's `claude-managed` hint and `auto-timer` hint were rewritten to match — auto-timer is now labeled as reserved since the daemon doesn't ship yet. The post-setup cheatsheet now points at `nucleus review` for backlog triage.
-
-- **Inline constitution generation in wizard §9.** When the user opts in, the writer now produces `<project>/CONSTITUTION.md` (a v0.1.0 draft) populated from §1 (project name, description, visibility, multi-agent y/n) and §2 (stack, deploy target). Replaces the previous deferred-TODO flow where the cheatsheet pointed users at `speckit-constitution` and most of them forgot. The draft follows `docs/HOW_TO_WRITE_CONSTITUTION.md`'s methodology: at-most-5 principles (placeholders with stack-specific hints in HTML comments), locked tech stack pinned to the chosen preset, agent ownership matrix (solo or multi-agent based on §1), phase-gate skeleton, semver policy, change log seed. Implementation: new `bin/atom-setup/src/lib/constitution.js` exporting `renderConstitution(answers)`; `writer.js` calls it after `writeLicense` when `answers.constitution === true`. Cheatsheet now points at the file ("Refine CONSTITUTION.md") instead of asking the user to run a second command. The `speckit-constitution` skill in Claude Code is still recommended as a downstream verification pass once the user has drafted real principles.
-
-## [0.2.1] — 2026-05-09
-
-### Added
-
 - **Five new stack presets** under `extras/<category>/<preset>/`, raising the wizard's preset coverage from 1 to 6:
   - **Python / FastAPI** (`extras/web/python-fastapi/`) — `pyproject.toml` pinned to Python 3.12 + FastAPI + Pydantic v2; `app/main.py` with `/healthz` and lifespan; multi-stage Dockerfile (builder venv → runtime, non-root, healthcheck); Railway as default deploy target.
   - **Swift / Vapor** (`extras/web/swift-vapor/`) — `Package.swift` pinned to Vapor 4 + Swift 5.10; `Sources/App/configure.swift` binds `0.0.0.0:PORT`; multi-stage Dockerfile with static-Swift-stdlib build; Fly.io as default deploy target.
@@ -30,6 +30,11 @@ In progress — remaining v0.2 items. See `docs/planning/v0.2.md`.
 - **3 seeded learnings per preset** (15 total) with `applies_to:` matching the preset's stack tags. Each learning is a real best practice, not invented filler — e.g., "Use cargo-chef for Rust Docker builds", "Static-link the Swift stdlib for Linux deploys", "Bind to 0.0.0.0, not localhost, inside containers".
 - **Stack-specific Quick Start in the project README.** Each preset ships a `README.snippet.md` that the writer splices into `<root>/README.md` (replacing a `{{QUICK_START}}` placeholder), and `{{PROJECT_NAME}}` / `{{DESCRIPTION}}` are substituted from the wizard's answers. Before this, bootstrapped projects had no README; now they have one tuned to whatever stack was picked.
 - **Language values in `LEARNINGS_TAXONOMY.md`'s `applies_to` vocabulary** — `node`, `python`, `rust`, `go`, `swift`. Pre-v0.2 the taxonomy said language tags belong only in `tags:`; with per-language presets, language-level filtering became necessary so a Pydantic learning doesn't ship to a Rust project.
+
+### Changed
+
+- **Honest nucleus capture framing across the README and scaffold.** The previous copy described `claude-managed` capture as "automated" — implying a daemon or hook. There isn't one: capture only happens when Claude is following AGENTS.md / SKILL.md during a session. `README.md`, `scaffold/README.md`, `scaffold/AGENTS.md`, and `scaffold/.claude/skills/nucleus/SKILL.md` now describe capture as Claude-led-during-sessions and promote as always-manual ("graduation needs human judgment"). The AGENTS.md and SKILL.md "when to capture" sections were rewritten from passive ("at session boundaries") to active triggers (after a non-obvious bug fix, after a design decision with rationale, on `/clear`). The wizard's `claude-managed` hint and `auto-timer` hint were rewritten to match — auto-timer is now labeled as reserved since the daemon doesn't ship yet. The post-setup cheatsheet now points at `nucleus review` for backlog triage.
+- **Inline constitution generation in wizard §9.** When the user opts in, the writer now produces `<project>/CONSTITUTION.md` (a v0.1.0 draft) populated from §1 (project name, description, visibility, multi-agent y/n) and §2 (stack, deploy target). Replaces the previous deferred-TODO flow where the cheatsheet pointed users at `speckit-constitution` and most of them forgot. The draft follows `docs/HOW_TO_WRITE_CONSTITUTION.md`'s methodology: at-most-5 principles (placeholders with stack-specific hints in HTML comments), locked tech stack pinned to the chosen preset, agent ownership matrix (solo or multi-agent based on §1), phase-gate skeleton, semver policy, change log seed. Implementation: new `bin/atom-setup/src/lib/constitution.js` exporting `renderConstitution(answers)`; `writer.js` calls it after `writeLicense` when `answers.constitution === true`. Cheatsheet now points at the file ("Refine CONSTITUTION.md") instead of asking the user to run a second command. The `speckit-constitution` skill in Claude Code is still recommended as a downstream verification pass once the user has drafted real principles.
 
 ### Fixed
 
@@ -43,7 +48,13 @@ In progress — remaining v0.2 items. See `docs/planning/v0.2.md`.
 
 ### Tests
 
-- 32 new assertions in `scripts/test-atom-setup.sh` covering: every preset's signature files at root, `/healthz` route presence in web presets, no Dockerfile in CLI / library presets, the docker-tier-skips-preset behavior, README placeholder substitution, README snippet splice + cleanup. Suite total: **92 / 92** passing.
+- Wave 3 added six test sections to `scripts/test-atom-setup.sh`:
+  - **Test 14–17** for `atom-setup new`: full round-trip with byte-identical-source check, target-collision refusal, missing-source refusal, deprecation notice on legacy in-place mode.
+  - **Test 18** for `atom migrate-install`: dry-run output, refusal-when-exists, help text. Test 18d (gated by `ATOM_TEST_SLOW=1`) runs the full clone + 6× `npm install -g` round-trip in a scratch npm prefix.
+  - **Test 19** for `install.sh`: structural checks + the slow round-trip (gated) verifying fresh install, idempotent re-run, success message.
+  - **Test 20** for `atom-update-check`: drift detection across the 5 inlined client copies, tick writes state, notice prints once, 24h debounce, `ATOM_UPDATE_CHECK_DISABLED` kill-switch, snooze sets + clears `lastNotified`, bogus duration rejected, future `snoozeUntil` suppresses notice, `atom upgrade --snooze` delegation, `--help` advertises the flag.
+- Wave 2's stack-preset additions contributed 32 assertions covering: every preset's signature files at root, `/healthz` route presence in web presets, no Dockerfile in CLI / library presets, the docker-tier-skips-preset behavior, README placeholder substitution, README snippet splice + cleanup.
+- Suite totals on v0.2.1: **164 / 164 fast, 179 / 179 with `ATOM_TEST_SLOW=1`** (atom-setup) + **20 / 20** (nucleus).
 
 ## [0.2.0] — 2026-05-08
 
