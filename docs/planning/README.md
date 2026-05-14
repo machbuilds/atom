@@ -37,15 +37,23 @@ file before starting work on that feature.
   TypeScript library — closing the v0.1 gap where only Next.js had
   a real preset. v0.2 Wave 2.
 
-### v0.3 (parked)
+### v0.3 (candidate list)
 
-- [`model-race-auto.md`](model-race-auto.md). The `--auto` flag for
-  `model-race start`. Cross-CLI parallel session orchestration via
-  a per-CLI adapter contract. Risky (per-CLI maintenance surface);
-  parked to v0.3 with the design locked.
-- `nucleus --semantic` (planning lives in `v0.2.md` "Out of scope"
-  section). Local embeddings via `@xenova/transformers`. Risky
-  (embedding-model + vector-store + indexing decisions). v0.3.
+- [`v0.3.md`](v0.3.md). Candidate to-do list, **not locked**. Bundles
+  7 new candidates (hook-driven nucleus capture, prompt auto-injection,
+  PreCompact/PostCompact, `atom doctor`, SQLite+FTS5 nucleus storage,
+  research/wiki layer, cost tracking) sourced from the
+  `rohitg00/pro-workflow` comparison analysis, plus the two
+  pre-existing v0.3 deferrals below. v0.3 planning session decides
+  yes/no/defer on each.
+- [`model-race-auto.md`](model-race-auto.md). Pre-existing deferral.
+  The `--auto` flag for `model-race start`. Cross-CLI parallel session
+  orchestration via a per-CLI adapter contract. Risky (per-CLI
+  maintenance surface); parked to v0.3 with the design locked.
+- `nucleus --semantic`. Pre-existing deferral. Local embeddings via
+  `@xenova/transformers`. Risky (embedding-model + vector-store +
+  indexing decisions). If v0.3 picks up SQLite migration (#16), this
+  rides on top.
 
 ## Build order
 
@@ -77,13 +85,23 @@ Wave 3 — distribution architecture, sequential, ~2 days
 Wave 3 is preauthorized to de-scope to v0.2.1 if it hits a design
 wall (most likely the in-place migration story).
 
-**v0.3 (parked, locked decisions)**:
+**v0.3 (candidate list, not locked)**:
 
-- `model-race --auto`
-- `nucleus --semantic`
+See [`v0.3.md`](v0.3.md) for the full list. Nine items total:
 
-Both have the design surface explored and the de-scope reasons
-captured. Ship when the v0.2 surface settles.
+- #12 Hook-driven nucleus capture (`Stop` hook)
+- #13 `UserPromptSubmit` auto-injection of nucleus + learnings
+- #14 `PreCompact` / `PostCompact` hooks for nucleus
+- #15 `atom doctor` command
+- #16 Move nucleus to SQLite + FTS5
+- #17 Research / wiki layer
+- #18 Cost tracking surface
+- #19 `model-race --auto` (pre-existing deferral, design locked)
+- #20 `nucleus --semantic` (pre-existing deferral, design locked)
+
+The v0.3 planning session decides yes/no/defer on each candidate.
+#12–#18 came from the `rohitg00/pro-workflow` comparison analysis;
+#19–#20 carried over from v0.2 with their design already locked.
 
 ## Status
 
