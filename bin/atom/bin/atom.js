@@ -6,6 +6,7 @@
 //   atom --version / -V       version of this dispatcher
 //   atom upgrade              fetch a new release of atom
 //   atom upgrade --check      check for an update without installing
+//   atom migrate-install      relocate a 0.1.x in-place install to ~/.atom/atom/
 
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +27,12 @@ if (args.includes('--version') || args.includes('-V')) {
 if (subcommand === 'upgrade') {
   const { runUpgrade } = await import('../src/upgrade.js');
   await runUpgrade(args.slice(1));
+  process.exit(0);
+}
+
+if (subcommand === 'migrate-install') {
+  const { runMigrateInstall } = await import('../src/migrate-install.js');
+  await runMigrateInstall(args.slice(1));
   process.exit(0);
 }
 
@@ -65,6 +72,7 @@ ${color.bold('Compare')} ${color.dim('— for high-stakes features')}
 ${color.bold('Maintain')}
   ${color.cyan('atom upgrade')}                                  Fetch a new release of atom and re-install CLIs.
   ${color.cyan('atom upgrade --check')}                          Check for an update without installing.
+  ${color.cyan('atom migrate-install')}                          One-shot: move a 0.1.x in-place install to ~/.atom/atom/.
 
 ${color.bold('Help')}
   ${color.cyan('atom')} ${color.dim('or')} ${color.cyan('atom --help')}                          This screen.

@@ -643,6 +643,85 @@ assert_grep "16.2 message points the user at install hint" "atom source not foun
 assert_not "16.3 no target directory was created on the failed run" test -d "$T16_PARENT/doomed"
 
 # =============================================================
+section "Test 18: \`atom migrate-install\` (one-shot 0.1.x → ~/.atom/atom/)"
+# =============================================================
+#
+# Item #8: migrate-install clones fresh to $ATOM_HOME/atom/ and re-links
+# globals. We exercise dry-run + refusal paths here (deterministic and
+# fast). The full clone+install round-trip is gated by ATOM_TEST_SLOW=1
+# below; we run it when explicitly requested.
+
+T18_HOME=$SCRATCH/test-18-fake-home
+T18_TARGET="$T18_HOME/.atom/atom"
+rm -rf "$T18_HOME"
+mkdir -p "$T18_HOME/.atom"
+
+# 18a: dry-run prints the plan and writes nothing.
+ATOM_HOME="$T18_HOME/.atom" \
+  ATOM_GIT_URL="$ATOM" \
+  node "$ATOM/bin/atom/bin/atom.js" migrate-install --dry-run > "$LOG_DIR/t18a-dryrun.log" 2>&1
+RC=$?
+if [ "$RC" = "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  18.1 migrate-install --dry-run exits 0")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  18.1 migrate-install --dry-run exited $RC")
+fi
+assert_grep "18.2 dry-run plan mentions git clone target" "$T18_TARGET" "$LOG_DIR/t18a-dryrun.log"
+assert_grep "18.3 dry-run plan mentions npm install" "npm install" "$LOG_DIR/t18a-dryrun.log"
+assert_not "18.4 dry-run did not create $T18_TARGET" test -e "$T18_TARGET"
+
+# 18b: refuse when target already exists.
+mkdir -p "$T18_TARGET"
+echo "existing" > "$T18_TARGET/marker.txt"
+ATOM_HOME="$T18_HOME/.atom" \
+  ATOM_GIT_URL="$ATOM" \
+  node "$ATOM/bin/atom/bin/atom.js" migrate-install --yes > "$LOG_DIR/t18b-refuse.log" 2>&1
+RC=$?
+if [ "$RC" != "0" ]; then
+  PASS=$((PASS+1))
+  RESULTS+=("  PASS  18.5 migrate-install refuses when target exists")
+else
+  FAIL=$((FAIL+1))
+  RESULTS+=("  FAIL  18.5 migrate-install should have refused but exited 0")
+fi
+assert_grep "18.6 refusal mentions existing dir" "already exists" "$LOG_DIR/t18b-refuse.log"
+assert "18.7 pre-existing marker preserved" test -f "$T18_TARGET/marker.txt"
+rm -rf "$T18_TARGET"
+
+# 18c: \`atom --help\` advertises migrate-install.
+node "$ATOM/bin/atom/bin/atom.js" --help > "$LOG_DIR/t18c-help.log" 2>&1
+assert_grep "18.8 atom --help advertises migrate-install" "atom migrate-install" "$LOG_DIR/t18c-help.log"
+
+# 18d: full clone+install. Skipped by default since it runs 5 npm
+# installs against the global prefix; set ATOM_TEST_SLOW=1 to opt in.
+if [ "${ATOM_TEST_SLOW:-0}" = "1" ]; then
+  T18D_HOME=$SCRATCH/test-18d-fake-home
+  T18D_PREFIX=$SCRATCH/test-18d-npm-prefix
+  rm -rf "$T18D_HOME" "$T18D_PREFIX"
+  mkdir -p "$T18D_HOME/.atom" "$T18D_PREFIX"
+  ATOM_HOME="$T18D_HOME/.atom" \
+    NPM_CONFIG_PREFIX="$T18D_PREFIX" \
+    ATOM_GIT_URL="$ATOM" \
+    node "$ATOM/bin/atom/bin/atom.js" migrate-install --yes > "$LOG_DIR/t18d-full.log" 2>&1
+  RC=$?
+  if [ "$RC" = "0" ]; then
+    PASS=$((PASS+1))
+    RESULTS+=("  PASS  18.9 full migrate-install round-trip exits 0")
+  else
+    FAIL=$((FAIL+1))
+    RESULTS+=("  FAIL  18.9 full migrate-install round-trip exited $RC (see t18d-full.log)")
+  fi
+  assert "18.10 ~/.atom/atom/ populated by clone" test -f "$T18D_HOME/.atom/atom/VERSION"
+  assert "18.11 atom global installed in scratch prefix" test -x "$T18D_PREFIX/bin/atom"
+  assert "18.12 atom-setup global installed" test -x "$T18D_PREFIX/bin/atom-setup"
+  assert "18.13 nucleus global installed" test -x "$T18D_PREFIX/bin/nucleus"
+  assert "18.14 learnings global installed" test -x "$T18D_PREFIX/bin/learnings"
+  assert "18.15 model-race global installed" test -x "$T18D_PREFIX/bin/model-race"
+fi
+
+# =============================================================
 section "Test 17: legacy in-place mode prints deprecation notice"
 # =============================================================
 
