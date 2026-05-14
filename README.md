@@ -57,19 +57,40 @@ Platform: macOS, Linux. Windows users need Git Bash, WSL, or similar for the she
 ## Quick start
 
 ```bash
-git clone https://github.com/machbuilds/atom.git my-project
-cd my-project
-./atom-setup
+curl -fsSL https://raw.githubusercontent.com/machbuilds/atom/main/install.sh | bash
 ```
 
-That's it. `./atom-setup` installs atom's CLIs globally (one-time per machine, only if not already installed) and then launches the interactive wizard.
+Installs atom to `~/.atom/atom/` and puts five CLIs (`atom`, `atom-setup`, `nucleus`, `learnings`, `model-race`) on your PATH. One time, per machine.
 
-`atom-setup` walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then turns the cloned directory into your new project: a fresh `main` branch with one initial commit, your chosen scaffold and presets at the root, and atom's own source content cleaned out. The Git section can create a GitHub repo via `gh` and push — no manual step needed.
+Then, anywhere on your machine:
 
-After the first run, `atom-setup`, `nucleus`, `learnings`, `model-race`, and `atom` are on your `PATH` globally — future clones can drop the `./` and just run `atom-setup`. To keep atom itself up to date, run `atom upgrade`.
+```bash
+atom-setup new my-project
+cd my-project
+```
+
+`atom-setup new` walks through up to 10 short sections (project name, stack, license, Docker, git, and so on), then writes a fresh project into `./my-project/`: a `main` branch with one initial commit, your chosen scaffold and presets at the root, and a working tree ready to push. The Git section can create a GitHub repo via `gh` and push — no manual step needed. Your atom install at `~/.atom/atom/` stays untouched.
+
+To keep atom itself up to date later, run `atom upgrade`.
 
 > [!TIP]
-> Want zero questions? Run `./atom-setup --bare` and you're done in under 5 seconds. All flags pass through (`--minimal`, `--full`, `--dry-run`, `--resume`, etc.).
+> Want zero questions? Run `atom-setup new my-project --bare` and you're done in under 5 seconds. All flags pass through (`--minimal`, `--full`, `--dry-run`, `--resume`, etc.).
+
+### Don't trust curl-pipe-bash? Install manually.
+
+```bash
+git clone https://github.com/machbuilds/atom.git ~/.atom/atom
+cd ~/.atom/atom
+for cli in bin/atom bin/atom-setup bin/nucleus bin/learnings bin/model-race; do
+  (cd "$cli" && npm install && npm install -g .)
+done
+```
+
+Same result, every step visible. See [`SECURITY.md`](SECURITY.md) for the curl-pipe trust model.
+
+### Upgrading from v0.1.x?
+
+See [`docs/MIGRATING.md`](docs/MIGRATING.md). One command (`atom migrate-install`) relocates a 0.1.x in-place install to the new `~/.atom/atom/` layout.
 
 <p align="center">
   <img src="extras/screenshots/marketing-bare-mode.png" alt="atom-setup --bare — five-second bootstrap" width="700">
@@ -86,10 +107,10 @@ Pick how much ceremony you want at clone time:
 
 | Mode | Time | Best for |
 |---|---|---|
-| `atom-setup --bare` | <5 sec | Power users. Sane defaults, no questions. |
-| `atom-setup --minimal` | ~30 sec | Most people. 5 essential questions, defaults for the rest. |
-| `atom-setup` | ~2 min | New users. All 10 sections with smart defaults you can press Enter through. |
-| `atom-setup --full` | ~5 min | Explicit control over every option. |
+| `atom-setup new <name> --bare` | <5 sec | Power users. Sane defaults, no questions. |
+| `atom-setup new <name> --minimal` | ~30 sec | Most people. 5 essential questions, defaults for the rest. |
+| `atom-setup new <name>` | ~2 min | New users. All 10 sections with smart defaults you can press Enter through. |
+| `atom-setup new <name> --full` | ~5 min | Explicit control over every option. |
 
 Plus `--resume` (pick up an interrupted setup), `--dry-run` (preview without writing), `--reinstall` (force re-install all CLIs even if already on PATH), and `--target <dir>` (operate on a different directory).
 
@@ -334,10 +355,12 @@ Shipped so far:
 - `nucleus migrate` — versioned schema migrations for JSONL files, auto-triggered
 - Live `gh repo create` in wizard §10 — creates GitHub repo and pushes; non-fatal on failure
 - 5 new stack presets: Python/FastAPI, Swift/Vapor, Rust/Axum, Go CLI/Cobra, TypeScript library
+- Inline constitution generation in the wizard (§9) — populated draft from §1+§2 answers
+- `nucleus review` + honest capture framing; backlog age nudge
+- `~/.atom/atom/` canonical install + `atom-setup new <name>` verb
+- `install.sh` curl one-liner + `atom migrate-install` for 0.1.x users
 
 Coming next in v0.2:
-- Constitution auto-generation via `speckit-constitution` integration
-- `~/.atom/atom/` canonical install + `install.sh` curl one-liner
 - `bin/atom-update-check` + snooze (gstack pattern)
 
 **v1.0**

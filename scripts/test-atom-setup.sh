@@ -735,6 +735,67 @@ assert "17.3 legacy in-place still scaffolds AGENTS.md" test -f "$T17/AGENTS.md"
 assert_not "17.4 legacy in-place still removes scaffold/" test -d "$T17/scaffold"
 
 # =============================================================
+section "Test 19: install.sh curl one-liner"
+# =============================================================
+#
+# Item #10: install.sh clones to $ATOM_HOME/atom/ and installs every CLI
+# globally. Idempotent: re-running on an existing install short-circuits.
+# Heavy (clones + 5 npm installs), so gated behind ATOM_TEST_SLOW=1 like
+# the migrate-install full round-trip. Fast checks (banner, shebang,
+# bytecode-ish smoke) run by default.
+
+# 19a: file is present, executable, and looks like the installer we wrote.
+assert "19.1 install.sh exists at repo root" test -f "$ATOM/install.sh"
+assert "19.2 install.sh is executable" test -x "$ATOM/install.sh"
+assert_grep "19.3 install.sh has bash shebang" "^#!/usr/bin/env bash" "$ATOM/install.sh"
+assert_grep "19.4 install.sh targets \$ATOM_HOME/atom" 'TARGET=.*ATOM_HOME_DIR.*atom' "$ATOM/install.sh"
+assert_grep "19.5 install.sh installs all 5 CLIs" "atom atom-setup nucleus learnings model-race" "$ATOM/install.sh"
+assert_grep "19.6 install.sh refuses to clobber existing install" "already installed" "$ATOM/install.sh"
+
+if [ "${ATOM_TEST_SLOW:-0}" = "1" ]; then
+  T19_HOME=$SCRATCH/test-19-fake-home
+  T19_PREFIX=$SCRATCH/test-19-npm-prefix
+  rm -rf "$T19_HOME" "$T19_PREFIX"
+  mkdir -p "$T19_HOME/.atom" "$T19_PREFIX"
+
+  # First run: fresh install.
+  ATOM_HOME="$T19_HOME/.atom" \
+    NPM_CONFIG_PREFIX="$T19_PREFIX" \
+    ATOM_GIT_URL="$ATOM" \
+    PATH="$T19_PREFIX/bin:$PATH" \
+    bash "$ATOM/install.sh" > "$LOG_DIR/t19a-install.log" 2>&1
+  RC=$?
+  if [ "$RC" = "0" ]; then
+    PASS=$((PASS+1))
+    RESULTS+=("  PASS  19.7 install.sh fresh run exits 0")
+  else
+    FAIL=$((FAIL+1))
+    RESULTS+=("  FAIL  19.7 install.sh fresh run exited $RC (see t19a-install.log)")
+  fi
+  assert "19.8 ~/.atom/atom/ populated by clone" test -f "$T19_HOME/.atom/atom/VERSION"
+  assert "19.9 atom global installed in scratch prefix" test -x "$T19_PREFIX/bin/atom"
+  assert "19.10 atom-setup global installed" test -x "$T19_PREFIX/bin/atom-setup"
+  assert_grep "19.11 success message mentions \`atom-setup new\`" "atom-setup new" "$LOG_DIR/t19a-install.log"
+
+  # Second run: idempotency. Should short-circuit and not re-clone.
+  ATOM_HOME="$T19_HOME/.atom" \
+    NPM_CONFIG_PREFIX="$T19_PREFIX" \
+    ATOM_GIT_URL="$ATOM" \
+    PATH="$T19_PREFIX/bin:$PATH" \
+    bash "$ATOM/install.sh" > "$LOG_DIR/t19b-rerun.log" 2>&1
+  RC=$?
+  if [ "$RC" = "0" ]; then
+    PASS=$((PASS+1))
+    RESULTS+=("  PASS  19.12 install.sh idempotent re-run exits 0")
+  else
+    FAIL=$((FAIL+1))
+    RESULTS+=("  FAIL  19.12 install.sh idempotent re-run exited $RC")
+  fi
+  assert_grep "19.13 idempotent re-run says \`already installed\`" "already installed" "$LOG_DIR/t19b-rerun.log"
+  assert_grep "19.14 idempotent re-run recommends \`atom upgrade\`" "atom upgrade" "$LOG_DIR/t19b-rerun.log"
+fi
+
+# =============================================================
 # Report
 # =============================================================
 
